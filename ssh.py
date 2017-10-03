@@ -3,8 +3,7 @@ import traceback
 import paramiko
 import SBModel
 
-paramiko.util.log_to_file('demo_simple.log')
-
+#paramiko.util.log_to_file('demo_simple.log')
 
 class SSHSession:
 
