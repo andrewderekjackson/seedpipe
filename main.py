@@ -1,18 +1,24 @@
-
-from SBModel import *
+from entities import *
+import repository
 from ssh import *
 import os
+from SBModel import *
 
 auth = SBAuth('porphyrion.feralhosting.com', username='sfox')
 
+REMOTE_DIR_BASE = 'finished'
 
 def check_for_jobs():
 
     print("*** Checking for new jobs... ")
 
+    db_session = repository.get_session()
+
     ssh_session = SSHSession(auth)
 
     if ssh_session.connect():
+
+        channels = db_session.query(Channel).all()
 
         client = ssh_session.client
 
@@ -20,10 +26,10 @@ def check_for_jobs():
 
         sftp = client.open_sftp()
 
-        for channel in model.channels:
+        for channel in channels:
             print("*** Channel: " + channel.name)
 
-            remote_dir = os.path.relpath(os.path.join(model.remote_dir, channel.path))
+            remote_dir = os.path.relpath(os.path.join(REMOTE_DIR_BASE, channel.remote_dir))
 
             try:
                 sftp.chdir(remote_dir)
@@ -31,12 +37,12 @@ def check_for_jobs():
 
                 for dir in channel.dir:
 
-                    if not model.get_job_by_id(dir):
-                        job = SBJob(dir, dir, channel_id=channel.id)
-                        model.jobs.append(job)
+                    if not db_session.query(Job).filter_by(name=dir).first():
+                        job = Job(name=dir, channel=channel)
                         job_dir = os.path.join(remote_dir, dir);
                         result = ssh_session.exec("du --apparent-size --block-size=1 " + job_dir)
                         job.size = float(result.split()[0])
+                        db_session.add(job)
 
                         print("Added new job: " + repr(job))
 
@@ -48,19 +54,10 @@ def check_for_jobs():
             sftp.chdir(None)
 
         ssh_session.close()
+        db_session.commit()
 
     else:
         print("Unable to establish a SSH session to host.")
 
 
-model_file = "./model.json"
-
-model = load(model_file)
-if model is None:
-    model = build_model()
-
-# check_for_jobs()
-
-
-
-save(model, model_file)
+check_for_jobs()
