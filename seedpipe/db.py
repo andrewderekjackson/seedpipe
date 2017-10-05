@@ -1,7 +1,10 @@
-from entities import *
-
 from sqlalchemy.orm import sessionmaker
-engine = create_engine('sqlite:///test.db', echo=True)
+from sqlalchemy import create_engine
+
+from seedpipe.models import *
+from seedpipe.settings import DB_URI
+
+engine = create_engine(DB_URI, echo=True)
 
 def get_session():
     Session = sessionmaker(bind=engine)
@@ -9,8 +12,6 @@ def get_session():
 
 
 def create_defaults():
-
-    Base.metadata.create_all(engine)
 
     session = get_session()
 
@@ -26,7 +27,7 @@ def create_defaults():
 
     session.commit()
 
-create_defaults()
-
-
-
+#
+# if __name__ == "__main__":
+#     Base.metadata.drop_all(engine)
+#     Base.metadata.create_all(engine)

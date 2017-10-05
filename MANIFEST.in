@@ -1,0 +1,2 @@
+graft seedpipe/templates
+graft seedpipe/static

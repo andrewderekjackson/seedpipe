@@ -1,0 +1,1 @@
+from .seedpipe import app

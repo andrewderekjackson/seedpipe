@@ -1,8 +1,9 @@
-from entities import *
-import repository
-from ssh import *
 import os
+
 from SBModel import *
+from seedpipe import db
+from seedpipe.models import *
+from ssh import *
 
 auth = SBAuth('porphyrion.feralhosting.com', username='sfox')
 
@@ -12,7 +13,7 @@ def check_for_jobs():
 
     print("*** Checking for new jobs... ")
 
-    db_session = repository.get_session()
+    db_session = db.get_session()
 
     ssh_session = SSHSession(auth)
 

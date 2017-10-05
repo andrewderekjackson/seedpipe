@@ -1,4 +1,3 @@
-from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Sequence, Float
 
@@ -32,3 +31,4 @@ class Job(Base):
 
     def __repr__(self):
         return "<Job(id='%s', name='%s', size='%s')>" % (self.id, self.name, self.size)
+
