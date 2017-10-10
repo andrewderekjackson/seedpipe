@@ -3,15 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <title>Jobs</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 </head>
 <body>
 
-<h1>Jobs</h1>
-<ul id="navigation">
-    {% for item in jobs %}
-    <li>{{item.name}} ({{item.channel.name}})</li>
-    {% endfor %}
-    </ul>
+<div class="container" role="main">
 
+    <h1>Jobs</h1>
+
+    <div class="row">
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Job Name</th>
+                <th>Category</th>
+                <th>Progress</th>
+                <th>Transferred</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody data-bind="foreach: jobs()">
+            <tr>
+                <td data-bind="text: name"></td>
+                <td data-bind="text: category"></td>
+                <td>
+                    <!--<span data-bind="text: transferred"></span>-->
+
+                    <div class="progress">
+
+                    <div class="progress-bar progress-bar-info"
+                         data-bind="style: { width: percent()+'%'}"
+                         role="progressbar">
+                        <span data-bind="text: Math.round(percent())+'%'"></span>
+                    </div>
+
+                    </div>
+
+                </td>
+                <td data-bind="text: transferredText()"></td>
+                <td data-bind="text: status"></td>
+                <td><button type="button" class="btn btn-xs btn-default" data-bind="text: action().name, click:doAction"></button></td>
+                <!--<td><a href="/start/">start</a> <a href="/stop/">stop</a></td>-->
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <script>
+
+        var Job = function(job) {
+            var that = this;
+            for (var attrname in job) {
+                this[attrname] = job[attrname];
+            }
+
+            this.action = function() {
+
+                if (that.status == "queued" || that.status == "stopped") {
+                    return { name: "Start", url: "/start/" + that.id };
+                } else {
+                    return { name: "Stop", url: "/stop/" + that.id };
+                }
+
+            }
+
+            this.doAction = function() {
+                var ac = that.action();
+
+                console.log("Performing action")
+                console.log(ac)
+
+                $.getJSON(ac.url)
+            }
+
+            this.percent = function() {
+                return that.transferred / that.size * 100
+            }
+
+            this.transferredText = function() {
+                return that.transferred + " / " + that.size
+            }
+        }
+
+        // Here's my data model
+        var ViewModel = function() {
+            var that = this
+            this.jobs = ko.observableArray();
+
+//            this.fullName = ko.pureComputed(function() {
+//                // Knockout tracks dependencies automatically. It knows that fullName depends on firstName and lastName, because these get called when evaluating fullName.
+//                return this.firstName() + " " + this.lastName();
+//            }, this);
+
+
+            this.refresh = function () {
+                console.log("Refreshing...")
+                $.getJSON("/status", function(data) {
+                    that.jobs.removeAll()
+                    data.jobs.map(function(v) {
+                        that.jobs.push(new Job(v))
+                    })
+                })
+
+            }
+
+            this.refresh()
+            window.setInterval(this.refresh, 3000)
+
+        };
+
+
+
+        vm = new ViewModel()
+        ko.applyBindings(vm);
+
+
+    </script>
+
+
+    <div>
 </body>
 </html>

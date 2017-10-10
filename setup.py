@@ -5,6 +5,6 @@ setup(
     packages=['seedpipe'],
     include_package_data=True,
     install_requires=[
-        'flask', 'sqlalchemy',
+        'flask', 'sqlalchemy', 'paramiko',
     ],
 )

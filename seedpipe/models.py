@@ -1,22 +1,35 @@
+import os
+
+import datetime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Sequence, Float
+from sqlalchemy import Column, Integer, String, Sequence, Float, DateTime
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
-class Channel(Base):
-    __tablename__ = 'channel'
+JOB_STATUS_QUEUED = 'queued'
+JOB_STATUS_STOPPED = 'stopped'
+JOB_STATUS_DOWNLOADING = 'downloading'
+JOB_STATUS_POSTPROCESSING = 'postprocessing'
+JOB_STATUS_CLEANUP='cleanup'
+JOB_STATUS_COMPLETED='completed'
 
-    id = Column(Integer, Sequence('channel_id_seq'), primary_key=True)
+
+FS_TYPE_DIR = 'dir'
+FS_TYPE_FILE = 'file'
+
+class Category(Base):
+    __tablename__ = 'category'
+
+    id = Column(Integer, Sequence('category_id_seq'), primary_key=True)
     name = Column(String)
-    remote_dir = Column(String)
-    local_dir = Column(String)
-    jobs = relationship("Job", back_populates='channel')
+    path = Column(String)
+    jobs = relationship("Job", back_populates='category')
 
     def __repr__(self):
-        return "<Channel(id='%s', name='%s')>" % (self.id, self.name)
+        return "<Category(id='%s', name='%s')>" % (self.id, self.name)
 
 
 class Job(Base):
@@ -24,11 +37,30 @@ class Job(Base):
 
     id = Column(Integer, Sequence('job_id_seq'), primary_key=True)
     name = Column(String)
+    remote_path = Column(String)
     size = Column(Float)
-
-    channel_id = Column(Integer, ForeignKey('channel.id'))
-    channel = relationship("Channel", back_populates="jobs")
+    status = Column(String, default=JOB_STATUS_QUEUED)
+    transferred = Column(Float)
+    fs_type = Column(Integer, default=FS_TYPE_DIR)
+    category_id = Column(Integer, ForeignKey('category.id'))
+    category = relationship("Category", back_populates="jobs")
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def __repr__(self):
         return "<Job(id='%s', name='%s', size='%s')>" % (self.id, self.name, self.size)
 
+    @property
+    def percent(self):
+        if not self.size or not self.transferred:
+            return 0
+
+        return self.transferred/self.size * 100
+
+    @property
+    def local_path(self):
+        if self.fs_type == FS_TYPE_FILE:
+            fn, ext = os.path.splitext(self.name)
+
+            return os.path.join(self.category.path if self.category is not None else "other", fn)
+        else:
+            return self.remote_path
