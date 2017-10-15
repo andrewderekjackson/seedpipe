@@ -22,7 +22,13 @@
 
 <div class="container" role="main">
 
-    <h1>Jobs</h1>
+    <h1>SeedPipe</h1>
+
+    <input type="button" data-bind="click: refreshRemote()" value="Refresh Remote">
+    <input type="button" data-bind="click: pauseAll()" value="Pause All">
+    <input type="button" data-bind="click: resumeAll()" value="Resume All">
+
+    <h2>Queue</h2>
 
     <div class="row">
 
@@ -63,6 +69,27 @@
             </tbody>
         </table>
 
+        <h2>History</h2>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Job Name</th>
+                <th>Category</th>
+
+            </tr>
+            </thead>
+            <tbody data-bind="foreach: history()">
+            <tr>
+                <td data-bind="text: name"></td>
+                <td data-bind="text: category"></td>
+
+
+            </tr>
+            </tbody>
+        </table>
+
+
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -81,10 +108,10 @@
 
             this.action = function() {
 
-                if (that.status == "queued" || that.status == "stopped") {
-                    return { name: "Start", url: "/start/" + that.id };
+                if (that.status == "queued" || that.status == "paused") {
+                    return { name: "Resume", url: "/resume/" + that.id };
                 } else {
-                    return { name: "Stop", url: "/stop/" + that.id };
+                    return { name: "Stop", url: "/pause/" + that.id };
                 }
 
             }
@@ -111,6 +138,7 @@
         var ViewModel = function() {
             var that = this
             this.jobs = ko.observableArray();
+            this.history = ko.observableArray();
 
 //            this.fullName = ko.pureComputed(function() {
 //                // Knockout tracks dependencies automatically. It knows that fullName depends on firstName and lastName, because these get called when evaluating fullName.
@@ -119,22 +147,49 @@
 
 
             this.refresh = function () {
-                console.log("Refreshing...")
+                console.log("Refreshing...");
                 $.getJSON("/status", function(data) {
-                    that.jobs.removeAll()
+                    that.jobs.removeAll();
+                    that.history.removeAll();
                     data.jobs.map(function(v) {
-                        that.jobs.push(new Job(v))
+                        if (v.status == "completed") {
+                            that.history.push(new Job(v))
+                        } else {
+                            that.jobs.push(new Job(v))
+                        }
                     })
                 })
 
+            };
+
+            this.refreshRemote = function () {
+                console.log("Looking for new jobs on remote...");
+                $.getJSON("/refreshremote", function(data) {
+                    console.log("done.")
+                })
+
+            };
+
+            this.pauseAll = function() {
+                console.log("Pausing all jobs...");
+                $.getJSON("/pauseall", function(data) {
+                    console.log("done.")
+                })
+            };
+
+            this.resumeAll = function() {
+                console.log("Resuming all jobs...");
+                $.getJSON("/resumeall", function(data) {
+                    console.log("done.")
+                })
             }
+
+
 
             this.refresh()
             window.setInterval(this.refresh, 3000)
 
         };
-
-
 
         vm = new ViewModel()
         ko.applyBindings(vm);
