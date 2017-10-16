@@ -1,4 +1,5 @@
 import logging, sh
+import shutil
 from time import sleep
 
 from seedpipe.db import *
@@ -33,28 +34,54 @@ class PostProcessorThread(WorkerThread):
 
             dir = os.path.expanduser(os.path.join(LOCAL_BASE_DIR, job.local_path,''))
 
+            # UNRAR
+
             logger.info("Unraring all files")
             sh.unrarall('--clean=all', dir)
 
-            logger.info("Starting cleanup")
-            set_status(session, job, JOB_STATUS_CLEANUP)
+            # MOVE TO MOVIES FOLDER
 
-            ssh = sh.ssh.bake(SSH_REMOTE_USERNAME + '@' + SSH_REMOTE_HOST)
+            try:
+                if job.category and job.category.move_files:
+                    logger.info("Moving files to {}". format(job.category.move_files_path))
+                    shutil.move(dir, job.category.move_files_path)
+            except Exception as e:
+                logger.warning("Moving files failed.", e)
 
-            if job.fs_type == FS_TYPE_FILE:
-                remote_file = os.path.expanduser(os.path.join(REMOTE_BASE_DIR, job.remote_path))
+            # SONAR
+            import requests
 
-                logger.debug("Deleting file from remote.", remote_file)
+            requests.post()
 
-                ssh("rm", remote_file)
 
-            else:
-                remote_dir = os.path.join(os.path.expanduser(os.path.join(REMOTE_BASE_DIR, job.remote_path)), "")
-                logger.debug("Deleting directory from remote.", remote_dir)
 
-                ssh("rm", "-rf", remote_dir)
+            # CLEAN UP
 
-            set_status(session, job, JOB_STATUS_COMPLETED)
+            try:
+
+                logger.info("Starting cleanup")
+                set_status(session, job, JOB_STATUS_CLEANUP)
+
+                ssh = sh.ssh.bake(SSH_REMOTE_USERNAME + '@' + SSH_REMOTE_HOST)
+
+                if job.fs_type == FS_TYPE_FILE:
+                    remote_file = os.path.expanduser(os.path.join(REMOTE_BASE_DIR, job.remote_path))
+
+                    logger.debug("Deleting file from remote.", remote_file)
+
+                    ssh("rm", remote_file)
+
+                else:
+                    remote_dir = os.path.join(os.path.expanduser(os.path.join(REMOTE_BASE_DIR, job.remote_path)), "")
+                    logger.debug("Deleting directory from remote.", remote_dir)
+
+                    ssh("rm", "-rf", remote_dir)
+
+                set_status(session, job, JOB_STATUS_COMPLETED)
+            except Exception as e:
+                logger.warning("Cleanup files failed.", e)
+
+
+
 
         sleep(5)
-
