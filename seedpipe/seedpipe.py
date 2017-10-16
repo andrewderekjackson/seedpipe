@@ -1,6 +1,7 @@
 import logging
 
 from flask import Flask, jsonify, session, render_template
+from .scheduler import scheduler
 
 from seedpipe.dispatcher import JobDispatcher
 from .update_remote import check_remote
@@ -29,24 +30,9 @@ app.config.update(dict(
 dispatcher = JobDispatcher()
 dispatcher.start()
 
-# def create_worker():
-#
-#     from .scheduler import scheduler
-#
-#     scheduler.add_job(check_remote, trigger='interval', id='refresh_remote', minutes=1)
-#     scheduler.add_job(process_queue, trigger='interval', id='process_queue', seconds=5)
-#
-#
-#     print("Creating worker thread")
-#     workerThread = WorkerThread()
-#     workerThread.daemon = True
-#     workerThread.start()
-#
-#     worker_control(DISPATCHER_START)
-#
-#     return workerThread
-#
-# create_worker()
+# refresh the remote now and then every 5 minutes after that.
+scheduler.add_job(check_remote, trigger='interval', id='refresh_remote', minutes=5)
+scheduler.add_job(check_remote, id='refresh_remote_immediate')
 
 
 @app.teardown_request

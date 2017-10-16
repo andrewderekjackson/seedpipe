@@ -32,6 +32,8 @@ def parse_du_output(res, base_dir, du_type):
 
         yield du_item(category, name, base, size, du_type)
 
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
 
 def check_remote():
 
@@ -58,7 +60,7 @@ def check_remote():
 
             # find /media/sdu1/sfox/finished/tv -maxdepth 1 -type f -print0  | du -m --files0-from=-
 
-            cat_res = ssh('find', cat_dir, '-maxdepth', '1', '-type','f', '-print0', '|', 'du', '--files0-from=-')
+            cat_res = ssh('find', shellquote(cat_dir), '-maxdepth', '1', '-type','f', '-print0', '|', 'du', '--files0-from=-')
 
             print(cat_res)
 

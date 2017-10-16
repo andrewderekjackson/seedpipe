@@ -2,14 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="73d70d47-c495-4abb-82dd-6d237ea95cf3" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/seedpipe/sonar.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test_sonar.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seedpipe.db" afterPath="$PROJECT_DIR$/seedpipe.db" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/seedpipe.db" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seedpipe/__init__.py" afterPath="$PROJECT_DIR$/seedpipe/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seedpipe/db.py" afterPath="$PROJECT_DIR$/seedpipe/db.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seedpipe/seedpipe.py" afterPath="$PROJECT_DIR$/seedpipe/seedpipe.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seedpipe/settings.py" afterPath="$PROJECT_DIR$/seedpipe/settings.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seedpipe/worker/post_processor.py" afterPath="$PROJECT_DIR$/seedpipe/worker/post_processor.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/setup.py" afterPath="$PROJECT_DIR$/setup.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seedpipe/update_remote.py" afterPath="$PROJECT_DIR$/seedpipe/update_remote.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,8 +19,8 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/seedpipe$models.coverage" NAME="models Coverage Results" MODIFIED="1507710393707" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/seedpipe" />
     <SUITE FILE_PATH="coverage/seedpipe$initdb.coverage" NAME="initdb Coverage Results" MODIFIED="1507969034139" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/seedpipe$test_sonar.coverage" NAME="test_sonar Coverage Results" MODIFIED="1508030968138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/seedpipe$run.coverage" NAME="run Coverage Results" MODIFIED="1508029037163" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/seedpipe$test_sonar.coverage" NAME="test_sonar Coverage Results" MODIFIED="1508122847441" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/seedpipe$run.coverage" NAME="run Coverage Results" MODIFIED="1508123913920" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -62,11 +60,21 @@
       <file leaf-file-name="seedpipe.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/seedpipe/seedpipe.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-600">
-              <caret line="63" column="18" lean-forward="true" selection-start-line="63" selection-start-column="18" selection-end-line="63" selection-end-column="18" />
+            <state relative-caret-position="180">
+              <caret line="34" column="60" lean-forward="false" selection-start-line="34" selection-start-column="60" selection-end-line="34" selection-end-column="60" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="update_remote.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/seedpipe/update_remote.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="37" column="19" lean-forward="true" selection-start-line="37" selection-start-column="19" selection-end-line="37" selection-end-column="19" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -83,7 +91,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sonar.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="sonar.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/seedpipe/sonar.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="306">
@@ -101,6 +109,18 @@
             <state relative-caret-position="54">
               <caret line="3" column="0" lean-forward="true" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="dispatcher.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/seedpipe/dispatcher.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="116">
+              <caret line="56" column="0" lean-forward="false" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#25#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -130,18 +150,8 @@
       <file leaf-file-name="settings.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/seedpipe/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="8" column="16" lean-forward="false" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/setup.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" column="40" lean-forward="false" selection-start-line="7" selection-start-column="40" selection-end-line="7" selection-end-column="40" />
+            <state relative-caret-position="216">
+              <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -150,10 +160,11 @@
       <file leaf-file-name="db.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/seedpipe/db.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-144">
-              <caret line="6" column="41" lean-forward="false" selection-start-line="6" selection-start-column="41" selection-end-line="6" selection-end-column="41" />
+            <state relative-caret-position="116">
+              <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
               <folding>
                 <element signature="e#0#55#0" expanded="true" />
+                <marker date="1508123293332" expanded="true" signature="1702:1724" ph="SELECT top 1... jobs" />
               </folding>
             </state>
           </provider>
@@ -181,6 +192,7 @@
       <find>action</find>
       <find>get_thread</find>
       <find>start_time</find>
+      <find>ssh</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -219,16 +231,13 @@
         <option value="$PROJECT_DIR$/seedpipe/scheduler.py" />
         <option value="$PROJECT_DIR$/initdb.py" />
         <option value="$PROJECT_DIR$/run.py" />
-        <option value="$PROJECT_DIR$/seedpipe/update_remote.py" />
         <option value="$PROJECT_DIR$/seedpipe/workers/__init__.py" />
         <option value="$PROJECT_DIR$/seedpipe/worker.py" />
         <option value="$PROJECT_DIR$/seedpipe/worker/worker.py" />
         <option value="$PROJECT_DIR$/seedpipe/worker/__init__.py" />
         <option value="$PROJECT_DIR$/seedpipe/templates/jobs.html" />
-        <option value="$PROJECT_DIR$/seedpipe/db.py" />
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/8416e6b1-a754-4c9e-a51a-38c82a889b75/console.sql" />
         <option value="$PROJECT_DIR$/seedpipe/models.py" />
-        <option value="$PROJECT_DIR$/seedpipe/seedpipe.py" />
         <option value="$PROJECT_DIR$/seedpipe/worker/downloader.py" />
         <option value="$PROJECT_DIR$/seedpipe/worker/base.py" />
         <option value="$PROJECT_DIR$/seedpipe/dispatcher.py" />
@@ -236,8 +245,11 @@
         <option value="$PROJECT_DIR$/seedpipe/worker/post_processor.py" />
         <option value="$PROJECT_DIR$/seedpipe/__init__.py" />
         <option value="$PROJECT_DIR$/test_sonar.py" />
-        <option value="$PROJECT_DIR$/seedpipe/settings.py" />
         <option value="$PROJECT_DIR$/seedpipe/sonar.py" />
+        <option value="$PROJECT_DIR$/seedpipe/settings.py" />
+        <option value="$PROJECT_DIR$/seedpipe/db.py" />
+        <option value="$PROJECT_DIR$/seedpipe/seedpipe.py" />
+        <option value="$PROJECT_DIR$/seedpipe/update_remote.py" />
       </list>
     </option>
   </component>
@@ -552,8 +564,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.test_sonar" />
-        <item index="1" class="java.lang.String" itemvalue="Python.run" />
+        <item index="0" class="java.lang.String" itemvalue="Python.run" />
+        <item index="1" class="java.lang.String" itemvalue="Python.test_sonar" />
         <item index="2" class="java.lang.String" itemvalue="Python.initdb" />
         <item index="3" class="java.lang.String" itemvalue="Python.models" />
         <item index="4" class="java.lang.String" itemvalue="Python.update_remote2" />
@@ -575,6 +587,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1600" height="873" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
@@ -589,7 +602,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4331551" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.48378378" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5162162" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.45053476" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.45053476" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -610,18 +623,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/seedpipe/dispatcher.py</url>
-          <line>56</line>
-          <option name="timeStamp" value="49" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/seedpipe/sonar.py</url>
-          <line>17</line>
-          <option name="timeStamp" value="62" />
-        </line-breakpoint>
-      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
@@ -632,7 +633,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="64" />
+      <option name="time" value="68" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -778,13 +779,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="das://table:/f95c31ba/8416e6b1-a754-4c9e-a51a-38c82a889b75/main.category">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/seedpipe/worker.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
@@ -853,16 +847,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/seedpipe/dispatcher.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/seedpipe/models.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="44">
@@ -870,13 +854,6 @@
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://table:/f95c31ba/8416e6b1-a754-4c9e-a51a-38c82a889b75/main.job">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
         </state>
       </provider>
     </entry>
@@ -890,41 +867,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/seedpipe/update_remote.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="52" column="8" lean-forward="true" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#21#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python3.6/site-packages/flask/app.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
           <caret line="1597" column="0" lean-forward="false" selection-start-line="1597" selection-start-column="0" selection-end-line="1597" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/seedpipe/seedpipe.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-600">
-          <caret line="63" column="18" lean-forward="true" selection-start-line="63" selection-start-column="18" selection-end-line="63" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/seedpipe/db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-144">
-          <caret line="6" column="41" lean-forward="false" selection-start-line="6" selection-start-column="41" selection-end-line="6" selection-end-column="41" />
-          <folding>
-            <element signature="e#0#55#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -974,8 +921,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/seedpipe/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="16" lean-forward="false" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
+        <state relative-caret-position="216">
+          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -986,6 +933,59 @@
           <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://table:/f95c31ba/8416e6b1-a754-4c9e-a51a-38c82a889b75/main.category">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://table:/f95c31ba/8416e6b1-a754-4c9e-a51a-38c82a889b75/main.job">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/seedpipe/db.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116">
+          <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#55#0" expanded="true" />
+            <marker date="1508123293332" expanded="true" signature="1702:1724" ph="SELECT top 1... jobs" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/seedpipe/seedpipe.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="34" column="60" lean-forward="false" selection-start-line="34" selection-start-column="60" selection-end-line="34" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/seedpipe/update_remote.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="37" column="19" lean-forward="true" selection-start-line="37" selection-start-column="19" selection-end-line="37" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/seedpipe/dispatcher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116">
+          <caret line="56" column="0" lean-forward="false" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
           </folding>
         </state>
       </provider>
