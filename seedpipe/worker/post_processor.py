@@ -49,14 +49,9 @@ class PostProcessorThread(WorkerThread):
                 logger.warning("Moving files failed.", e)
 
             # SONAR
-            import requests
-
-            requests.post()
-
-
+            # TODO:
 
             # CLEAN UP
-
             try:
 
                 logger.info("Starting cleanup")

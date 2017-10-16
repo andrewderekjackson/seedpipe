@@ -60,7 +60,7 @@ def check_remote():
 
             # find /media/sdu1/sfox/finished/tv -maxdepth 1 -type f -print0  | du -m --files0-from=-
 
-            cat_res = ssh('find', shellquote(cat_dir), '-maxdepth', '1', '-type','f', '-print0', '|', 'du', '--files0-from=-')
+            cat_res = ssh('find', shellquote(cat_dir), '-maxdepth', '1', '-type','f', '-print0', '|', 'du', '-B1', '--files0-from=-')
 
             print(cat_res)
 
