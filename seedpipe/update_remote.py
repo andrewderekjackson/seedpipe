@@ -96,10 +96,10 @@ def check_remote():
             print("job exists - updating")
             job.size = item.size
 
-    # clean up old jobs
-    for job in session.query(Job).all():
-        if not any(p.name == job.name for p in pending_jobs):
-            print(job.name + "no longer existings - removing job")
-            session.delete(job)
+    # # clean up old jobs
+    # for job in session.query(Job).all():
+    #     if not any(p.name == job.name for p in pending_jobs):
+    #         print(job.name + "no longer existings - removing job")
+    #         session.delete(job)
 
     session.commit()

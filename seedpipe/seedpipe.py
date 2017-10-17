@@ -1,6 +1,6 @@
 import logging
 
-from flask import Flask, jsonify, session, render_template
+from flask import Flask, jsonify, session, render_template, abort
 from .scheduler import scheduler
 
 from seedpipe.dispatcher import JobDispatcher
@@ -17,6 +17,11 @@ formatter = logging.Formatter("%(thread)s - %(name)s - %(levelname)s - %(message
 
 ch.setFormatter(formatter)
 root_logger.addHandler(ch)
+
+shlogger = logging.getLogger('sh')
+if shlogger is not None:
+    shlogger.setLevel(logging.INFO)
+
 
 app = Flask(__name__)
 
@@ -50,8 +55,17 @@ def refresh_remote():
     check_remote()
     return "OK", 200
 
-@app.route('/status')
-def status():
+def create_response(status_code, status, **kwargs):
+    response = {'status_code':status_code, 'status':status}
+
+    if kwargs is not None:
+        for key, value in kwargs.items():
+            response[key] = value
+
+    return response
+
+@app.route('/api/status')
+def api_status():
     # scheduler.add_job(check_local, id='refresh_local')
 
     jobs = session.query(Job).all()
@@ -63,33 +77,47 @@ def status():
                   'transferred': job.transferred, 'percent': job.percent,
                   'category': job.category.name if job.category is not None else ''})
 
-    return jsonify(jobs=j)
+    return jsonify(create_response(200, "OK", jobs=j))
+
+@app.route('/api/job/<id>')
+def api_job(id):
+
+    job = session.query(Job).get(id)
+    if job is None:
+        return abort(404)
+
+    json = {'id': job.id, 'name': job.name, 'status': 'paused' if job.paused else job.status, 'fs_type': job.fs_type, 'size': job.size,
+              'transferred': job.transferred, 'percent': job.percent,
+              'category': job.category.name if job.category is not None else '', 'log':job.log}
+
+    return jsonify(create_response(200, "OK", job = json))
 
 
-@app.route('/resume/<job_id>')
-def resume_job(job_id):
+@app.route('/api/resume/<job_id>')
+def api_resume_job(job_id):
     dispatcher.resume_job(job_id)
 
-    return "OK", 200
+    return jsonify(create_response(200, "Job resumed"))
 
 
-@app.route('/pause/<job_id>')
-def pause_job(job_id):
+@app.route('/api/pause/<job_id>')
+def api_pause_job(job_id):
     dispatcher.pause_job(job_id)
 
-    return "OK", 200
+    return jsonify(create_response(200, "Job paused"))
 
-@app.route('/pauseall')
-def pauseall():
+@app.route('/api/pauseall')
+def api_pauseall():
     dispatcher.stop()
 
-    return "OK", 200
+    return jsonify(create_response(200, "Job scheduler paused"))
 
-@app.route('/resumeall')
-def resumeall():
+
+@app.route('/api_resumeall')
+def api_resumeall():
     dispatcher.start()
 
-    return "OK", 200
+    return jsonify(create_response(200, "Job scheduler resumed"))
 
 
 # app.run(debug=True, use_debugger=False, use_reloader=False)

@@ -109,9 +109,9 @@
             this.action = function() {
 
                 if (that.status == "queued" || that.status == "paused") {
-                    return { name: "Resume", url: "/resume/" + that.id };
+                    return { name: "Resume", url: "/api/resume/" + that.id };
                 } else {
-                    return { name: "Stop", url: "/pause/" + that.id };
+                    return { name: "Stop", url: "/api/pause/" + that.id };
                 }
 
             }
@@ -148,7 +148,7 @@
 
             this.refresh = function () {
                 console.log("Refreshing...");
-                $.getJSON("/status", function(data) {
+                $.getJSON("/api/status", function(data) {
                     that.jobs.removeAll();
                     that.history.removeAll();
                     data.jobs.map(function(v) {
@@ -164,7 +164,7 @@
 
             this.refreshRemote = function () {
                 console.log("Looking for new jobs on remote...");
-                $.getJSON("/refreshremote", function(data) {
+                $.getJSON("/api/refreshremote", function(data) {
                     console.log("done.")
                 })
 
@@ -172,14 +172,14 @@
 
             this.pauseAll = function() {
                 console.log("Pausing all jobs...");
-                $.getJSON("/pauseall", function(data) {
+                $.getJSON("/api/pauseall", function(data) {
                     console.log("done.")
                 })
             };
 
             this.resumeAll = function() {
                 console.log("Resuming all jobs...");
-                $.getJSON("/resumeall", function(data) {
+                $.getJSON("/api/resumeall", function(data) {
                     console.log("done.")
                 })
             }

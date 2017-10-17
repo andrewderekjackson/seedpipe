@@ -48,6 +48,7 @@ class Job(Base):
     fs_type = Column(Integer, default=FS_TYPE_DIR)
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship("Category", back_populates="jobs")
+    log = Column(String)
 
     datetime_added = Column(DateTime, default=datetime.datetime.utcnow)
     datetime_downloaded = Column(DateTime)

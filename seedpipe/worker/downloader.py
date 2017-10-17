@@ -1,4 +1,6 @@
 import subprocess, logging, os
+from queue import Queue, Empty
+from threading import Thread
 from time import sleep
 
 from .base import *
@@ -15,15 +17,26 @@ class DownloaderThread(WorkerThread):
         super(DownloaderThread, self).__init__(event)
 
         self.process = None
+        self.reader_thread = None
+        self.reader_queue = Queue()
         self.current_job = None
         self.local_dir = None
         self.start_time = None
 
-    def update_job(self, job, dir):
-        size = get_size(dir)
-        # print("New Size: " + str(size))
+    def append_log_line(self, text):
+        if text is not None and self.current_job is not None:
+            if self.current_job.log is None:
+                self.current_job.log = ''
+            self.current_job.log += os.linesep+str(text)
 
-        job.transferred = size
+    def update_job(self):
+
+        if self.current_job is None:
+            return
+
+        size = get_size(self.local_dir)
+        self.current_job.transferred = size
+
         session.commit()
 
     def start_download(self, job):
@@ -58,9 +71,23 @@ class DownloaderThread(WorkerThread):
             command = ["rsync", "-avhSP", "--stats", "--protect-args",
                        SSH_REMOTE_USERNAME + "@" + SSH_REMOTE_HOST + ":" + remote_file, self.local_dir]
 
-        print("Command to invoke: " + repr(command))
+        logger.debug(repr(command))
 
-        self.process = subprocess.Popen(command)
+        self.append_log_line(repr(command))
+
+        self.process = subprocess.Popen(command, stdout = subprocess.PIPE, bufsize=1)
+
+        def enqueue_output(out, queue):
+            for line in iter(out.readline, b''):
+                queue.put(line)
+            out.close()
+
+        # non-blocking read of stdout
+        self.reader_queue = Queue()
+        self.reader_thread = Thread(target=enqueue_output, args=(self.process.stdout, self.reader_queue))
+        self.reader_thread.daemon = True
+        self.reader_thread.start()
+
 
     def get_next_job(self):
         logging.info("checking for next job")
@@ -82,6 +109,7 @@ class DownloaderThread(WorkerThread):
 
         # no jobs available
         return None
+
 
 
     def action(self, message):
@@ -120,6 +148,7 @@ class DownloaderThread(WorkerThread):
                 return
             else:
 
+
                 current_time = datetime.datetime.now()
                 diff = current_time - self.start_time
                 if diff.total_seconds() > 3:
@@ -127,12 +156,20 @@ class DownloaderThread(WorkerThread):
                     # reload from database
                     session.refresh(self.current_job)
 
+                    while not self.reader_queue.empty():
+                        try:
+                            line = self.reader_queue.get_nowait()  # or q.get(timeout=.1)
+                        except Empty:
+                            print('no output yet')
+                        else:  # got line
+                            self.append_log_line(line)
+
                     if self.current_job.paused:
                         logger.debug("Job has been paused... aborting.")
                         self.abort()
                         return
 
-                    self.update_job(self.current_job, self.local_dir)
+                    self.update_job()
 
                     self.start_time = datetime.datetime.now()
 
