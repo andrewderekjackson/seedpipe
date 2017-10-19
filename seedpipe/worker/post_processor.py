@@ -62,13 +62,13 @@ class PostProcessorThread(WorkerThread):
                 if job.fs_type == FS_TYPE_FILE:
                     remote_file = os.path.expanduser(os.path.join(REMOTE_BASE_DIR, job.remote_path))
 
-                    logger.debug("Deleting file from remote.", remote_file)
+                    logger.debug("Deleting file from remote: {}".format(remote_file))
 
                     ssh("rm", remote_file)
 
                 else:
                     remote_dir = os.path.join(os.path.expanduser(os.path.join(REMOTE_BASE_DIR, job.remote_path)), "")
-                    logger.debug("Deleting directory from remote.", remote_dir)
+                    logger.debug("Deleting directory from remote: {}".format(remote_dir))
 
                     ssh("rm", "-rf", remote_dir)
 
