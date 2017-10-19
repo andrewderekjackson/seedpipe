@@ -7,7 +7,7 @@ from .base import *
 
 from seedpipe.db import session
 from seedpipe.models import *
-from seedpipe.settings import *
+from seedpipe.config import *
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class DownloaderThread(WorkerThread):
             print("Remote Folder: " + remote_dir)
 
             command = ["rsync", "-avhSP", "--stats", "--protect-args",
-                       SSH_REMOTE_USERNAME + "@" + SSH_REMOTE_HOST + ":" + remote_dir, self.local_dir]
+                       SSH_USERNAME + "@" + SSH_HOST + ":" + remote_dir, self.local_dir]
 
         else:
 
@@ -69,7 +69,7 @@ class DownloaderThread(WorkerThread):
             print("Remote Folder: " + remote_file)
 
             command = ["rsync", "-avhSP", "--stats", "--protect-args",
-                       SSH_REMOTE_USERNAME + "@" + SSH_REMOTE_HOST + ":" + remote_file, self.local_dir]
+                       SSH_USERNAME + "@" + SSH_HOST + ":" + remote_file, self.local_dir]
 
         logger.debug(repr(command))
 

@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 
 from .models import *
-from .settings import DB_URI
+from .config import DB_URI
 
 
 def get_session():
@@ -58,8 +58,5 @@ def create_database(engine, session):
         create_db_defaults(engine, session)
 
 
-
 engine = create_engine(DB_URI, echo=False)
 session = scoped_session(sessionmaker(bind=engine))
-
-create_database(engine, session)

@@ -1,8 +1,8 @@
-import threading, logging
+import logging
+import threading
 
 from seedpipe.db import session
-from seedpipe.models import JOB_STATUS_QUEUED
-from seedpipe.worker import WorkerThread, DownloaderThread, PostProcessorThread,set_status,get_job
+from seedpipe.worker import DownloaderThread, PostProcessorThread, get_job
 
 logger = logging.getLogger(__name__)
 
@@ -72,3 +72,5 @@ class JobDispatcher():
         if job is not None:
             job.paused = True
             session.commit()
+
+

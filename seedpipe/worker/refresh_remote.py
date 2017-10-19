@@ -1,6 +1,6 @@
 import os, pprint, sh
 
-from seedpipe.settings import *
+from seedpipe.config import *
 from seedpipe.db import session
 from seedpipe.models import *
 
@@ -35,11 +35,11 @@ def parse_du_output(res, base_dir, du_type):
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
-def check_remote():
+def refresh_remote():
 
     print("Connecting...")
 
-    ssh = sh.ssh.bake(SSH_REMOTE_USERNAME + '@' + SSH_REMOTE_HOST)
+    ssh = sh.ssh.bake(SSH_USERNAME + '@' + SSH_HOST)
     res = ssh('du', '-B1', '--max-depth=2', REMOTE_BASE_DIR)
 
     base_dir = os.path.join(os.path.expanduser(REMOTE_BASE_DIR), '')

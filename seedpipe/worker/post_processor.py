@@ -4,7 +4,7 @@ from time import sleep
 
 from seedpipe.db import *
 from seedpipe.worker import *
-from seedpipe.settings import *
+from seedpipe.config import *
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class PostProcessorThread(WorkerThread):
                 logger.info("Starting cleanup")
                 set_status(session, job, JOB_STATUS_CLEANUP)
 
-                ssh = sh.ssh.bake(SSH_REMOTE_USERNAME + '@' + SSH_REMOTE_HOST)
+                ssh = sh.ssh.bake(SSH_USERNAME + '@' + SSH_HOST)
 
                 if job.fs_type == FS_TYPE_FILE:
                     remote_file = os.path.expanduser(os.path.join(REMOTE_BASE_DIR, job.remote_path))
