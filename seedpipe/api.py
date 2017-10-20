@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, session, render_template, abort
 
 from seedpipe.db import session
 from seedpipe.models import *
+from seedpipe.worker import get_job, set_status
 
 api = Blueprint("api", __name__)
 
@@ -48,31 +49,33 @@ def api_job(id):
 
 @api.route('/resume/<job_id>')
 def api_resume_job(job_id):
-    dispatcher.resume_job(job_id)
+
+    job = get_job(session, job_id)
+    if job is not None:
+        job.paused = False
+        session.commit()
 
     return jsonify(create_response(200, "Job resumed"))
 
 
 @api.route('/pause/<job_id>')
 def api_pause_job(job_id):
-    dispatcher.pause_job(job_id)
+
+    job = get_job(session, job_id)
+    if job is not None:
+        job.paused = True
+        session.commit()
 
     return jsonify(create_response(200, "Job paused"))
 
 @api.route('/pauseall')
 def api_pauseall():
-    dispatcher.stop()
-
     return jsonify(create_response(200, "Job scheduler paused"))
 
 
 @api.route('/resumeall')
 def api_resumeall():
-    dispatcher.start()
-
     return jsonify(create_response(200, "Job scheduler resumed"))
-
-
 
 def create_response(status_code, status, **kwargs):
     response = {'status_code':status_code, 'status':status}

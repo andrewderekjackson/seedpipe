@@ -2,6 +2,8 @@ import logging, sh
 import shutil
 from time import sleep
 
+from sqlalchemy import or_
+
 from seedpipe.db import *
 from seedpipe.worker import *
 from seedpipe.config import *
@@ -18,7 +20,7 @@ class PostProcessorThread(WorkerThread):
 
         logging.info("checking for next postprocessing jobs")
 
-        next_job = session.query(Job).filter(Job.status == JOB_STATUS_POSTPROCESSING, Job.paused == False).first()
+        next_job = session.query(Job).filter(or_(Job.status == JOB_STATUS_POSTPROCESSING, Job.status == JOB_STATUS_CLEANUP), Job.paused == False).first()
         if next_job is not None:
             logging.debug("Next job is job {}".format(next_job.id))
             return next_job

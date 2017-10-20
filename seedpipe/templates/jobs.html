@@ -108,10 +108,10 @@
 
             this.action = function() {
 
-                if (that.status == "queued" || that.status == "paused") {
+                if (that.status == "paused") {
                     return { name: "Resume", url: "/api/resume/" + that.id };
                 } else {
-                    return { name: "Stop", url: "/api/pause/" + that.id };
+                    return { name: "Pause", url: "/api/pause/" + that.id };
                 }
 
             }
