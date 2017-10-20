@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from seedpipe.worker import DownloaderThread, PostProcessorThread, refresh_remote
 from apscheduler.schedulers.background import BackgroundScheduler
 
