@@ -1,30 +1,29 @@
 #!/usr/bin/env python3
 
-from seedpipe.worker import DownloaderThread, PostProcessorThread, refresh_remote
-from apscheduler.schedulers.background import BackgroundScheduler
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
+
+from seedpipe.worker import DownloaderThread, PostProcessorThread, schedule_new_job, refresh_remote
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 import threading
+
 event = threading.Event()
 
 
+
 try:
-    scheduler = BackgroundScheduler()
-    scheduler.start()
+    scheduler = BlockingScheduler()
 
     # refresh the remote now and then every 5 minutes after that.
-    scheduler.add_job(refresh_remote.refresh_remote, trigger='interval', id='refresh_remote', minutes=5)
-    scheduler.add_job(refresh_remote.refresh_remote, id='refresh_remote_immediate')
+    #scheduler.add_job(refresh_remote, trigger='interval', id='refresh_remote', minutes=5)
+    #scheduler.add_job(refresh_remote, id='refresh_remote_immediate')
 
-    downloader = DownloaderThread(event)
-    downloader.start()
+    # check for new jobs
+    scheduler.add_job(schedule_new_job, id='schedule_new_job', trigger='interval', seconds=5)
 
-    post = PostProcessorThread(event)
-    post.start()
+    scheduler.start()
 
 except (KeyboardInterrupt, SystemExit):
-
     event.set()
-
-    downloader.join()
-    post.join()

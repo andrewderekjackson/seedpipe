@@ -12,16 +12,23 @@ from seedpipe.config import *
 logger = logging.getLogger(__name__)
 
 
-class DownloaderThread(WorkerThread):
-    def __init__(self, event):
-        super(DownloaderThread, self).__init__(event)
+class DownloaderThread(Thread):
+    def __init__(self, job_id, event):
+        Thread.__init__(self)
 
+        self.event = event
+        self.job_id = job_id
         self.process = None
         self.reader_thread = None
         self.reader_queue = Queue()
         self.current_job = None
         self.local_dir = None
         self.start_time = None
+
+        logger.debug("Worker thread initialized")
+
+    def __del__(self):
+        logger.debug("Worker thread deleted")
 
     def append_log_line(self, text):
         if text is not None and self.current_job is not None:
@@ -88,53 +95,19 @@ class DownloaderThread(WorkerThread):
         self.reader_thread.daemon = True
         self.reader_thread.start()
 
+    def run(self):
 
-    def get_next_job(self):
-        logging.info("checking for next job")
-
-        # firstly continue any jobs which are in progress
-        next_job = session.query(Job).filter(Job.status == JOB_STATUS_DOWNLOADING, Job.paused == False).first()
-        if next_job is not None:
-            logging.debug("Next job is job {}".format(next_job.id))
-            return next_job
-
-        # secondly find the next queued job (ordered by priority of the category)
-        next_job = session.query(Job).outerjoin(Job.category) \
-            .filter(Job.status == JOB_STATUS_QUEUED, Job.paused == False) \
-            .order_by(Category.priority).first()
-
-        if next_job is not None:
-            logging.debug("Next job is job {}".format(next_job.id))
-            return next_job
-
-        # no jobs available
-        return None
-
-
-
-    def action(self, message):
-
+        self.current_job = get_job(session, self.job_id)
         if self.current_job is None:
-            logger.debug("Looking for a new job...")
+            return
 
-            # try to start a download process
+        set_status(session, self.current_job, JOB_STATUS_DOWNLOADING)
 
-            self.current_job = self.get_next_job()
-            if self.current_job is not None:
-                logging.debug("Current Job Status: " + self.current_job.status)
+        self.start_download(self.current_job)
 
-                set_status(session, self.current_job, JOB_STATUS_DOWNLOADING)
+        while not self.event.is_set():
 
-                self.start_download(self.current_job)
-                self.start_time = datetime.datetime.now()
-
-            sleep(5)
-
-        else:
-
-            logger.debug("Monitoring existing job...")
-
-           # monitor the current download
+            self.start_time = datetime.datetime.now()
 
             # wait for a bit
             sleep(2)
@@ -144,10 +117,9 @@ class DownloaderThread(WorkerThread):
 
             if exit_code is not None:
                 print("Process exited with code: " + str(exit_code))
-                self.complete_job(exit_code)
+                self.complete(exit_code)
                 return
             else:
-
 
                 current_time = datetime.datetime.now()
                 diff = current_time - self.start_time
@@ -173,17 +145,23 @@ class DownloaderThread(WorkerThread):
 
                     self.start_time = datetime.datetime.now()
 
-    def abort(self):
+        self.terminate()
+
+    def terminate(self):
         self.process.terminate()
         self.current_job = None
         self.start_time = None
         self.process = None
 
-    def terminate(self):
-        self.abort()
+        logging.info("Job has terminated.")
 
-    def complete_job(self, exit_code):
+
+    def complete(self, exit_code):
         set_status(session, self.current_job, JOB_STATUS_POSTPROCESSING)
 
         self.current_job = None
         self.process = None
+
+        logging.info("Job has completed.")
+
+

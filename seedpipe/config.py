@@ -28,24 +28,24 @@ def load_config(*args):
 
     return False
 
-def configure_logging():
-
-    logging.basicConfig(level=logging.DEBUG)
-
-    root_logger = logging.getLogger()
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    #formatter = logging.Formatter("%(thread)s - %(name)s - %(levelname)s - %(message)s")
-
-    ch.setFormatter(formatter)
-    root_logger.addHandler(ch)
-
-    shlogger = logging.getLogger('sh')
-    if shlogger is not None:
-        shlogger.setLevel(logging.INFO)
-
-configure_logging()
+# def configure_logging():
+#
+#     logging.basicConfig(level=logging.DEBUG)
+#
+#     root_logger = logging.getLogger()
+#     ch = logging.StreamHandler()
+#     ch.setLevel(logging.DEBUG)
+#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+#     #formatter = logging.Formatter("%(thread)s - %(name)s - %(levelname)s - %(message)s")
+#
+#     ch.setFormatter(formatter)
+#     root_logger.addHandler(ch)
+#
+#     shlogger = logging.getLogger('sh')
+#     if shlogger is not None:
+#         shlogger.setLevel(logging.INFO)
+#
+# configure_logging()
 
 # load the config file
 default = '~/.seedpipe'

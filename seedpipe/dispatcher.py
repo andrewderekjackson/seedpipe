@@ -55,22 +55,3 @@ class JobDispatcher():
         for thread in threading.enumerate():
             if type(thread) is DownloaderThread or type(thread) is PostProcessorThread:
                 thread.event.set()
-
-
-    def resume_job(self, job_id):
-
-        logger.info("Resuming job {}".format(job_id))
-        job = get_job(session, job_id)
-        if job is not None:
-            job.paused = False
-            session.commit()
-
-    def pause_job(self, job_id):
-        logger.info("Pausing job {}".format(job_id))
-
-        job = get_job(session, job_id)
-        if job is not None:
-            job.paused = True
-            session.commit()
-
-

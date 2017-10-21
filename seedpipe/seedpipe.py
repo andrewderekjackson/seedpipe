@@ -1,8 +1,5 @@
 import logging
 
-
-
-
 from flask import Blueprint, render_template
 
 from seedpipe.db import session
