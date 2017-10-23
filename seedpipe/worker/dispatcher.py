@@ -14,7 +14,7 @@ def thread_exists(thread_type):
 
 
 def get_next_download_job():
-    logging.info("checking for next download job")
+    logging.debug("checking for next download job")
 
     # firstly continue any jobs which are in progress
     next_job = session.query(Job).filter(Job.status == JOB_STATUS_DOWNLOADING, Job.paused == False).first()
@@ -36,7 +36,7 @@ def get_next_download_job():
 
 def get_next_postprocessing_job():
 
-    logging.info("checking for next postprocessing jobs")
+    logging.debug("checking for next postprocessing jobs")
 
     next_job = session.query(Job).filter(or_(Job.status == JOB_STATUS_POSTPROCESSING, Job.status == JOB_STATUS_CLEANUP), Job.paused == False).first()
     if next_job is not None:
@@ -52,7 +52,7 @@ download_stop = threading.Event()
 
 def schedule_new_job():
 
-    logger.info("Scheduling...")
+    logger.debug("Scheduling...")
     if not thread_exists(DownloaderThread):
         logger.debug("No download thread exists. Attempt to schedule a new one.")
 
@@ -61,8 +61,9 @@ def schedule_new_job():
             downloader = DownloaderThread(next_job.id, download_stop)
             downloader.daemon = True
             downloader.start()
+            downloader.join()
         else:
-            logger.info("No download job available.")
+            logger.debug("No download job available.")
 
     if not thread_exists(PostProcessorThread):
         logger.debug("No post processing thread exists. Attempt to schedule a new one.")
@@ -72,5 +73,6 @@ def schedule_new_job():
             postprocessor = PostProcessorThread(next_job.id, download_stop)
             postprocessor.daemon = True
             postprocessor.start()
+            postprocessor.join()
         else:
-            logger.info("No postprocessing job available.")
+            logger.debug("No postprocessing job available.")

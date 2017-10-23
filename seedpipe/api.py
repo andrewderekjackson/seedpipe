@@ -52,6 +52,10 @@ def api_resume_job(job_id):
 
     job = get_job(session, job_id)
     if job is not None:
+
+        if job.status == JOB_STATUS_FAILED:
+            job.status = JOB_STATUS_QUEUED
+
         job.paused = False
         session.commit()
 

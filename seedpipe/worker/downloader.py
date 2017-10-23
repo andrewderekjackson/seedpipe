@@ -23,7 +23,6 @@ class DownloaderThread(Thread):
         self.reader_queue = Queue()
         self.current_job = None
         self.local_dir = None
-        self.start_time = None
 
         logger.debug("Worker thread initialized")
 
@@ -34,7 +33,7 @@ class DownloaderThread(Thread):
         if text is not None and self.current_job is not None:
             if self.current_job.log is None:
                 self.current_job.log = ''
-            self.current_job.log += os.linesep+str(text)
+            self.current_job.log += os.linesep + str(text)
 
     def update_job(self):
 
@@ -82,7 +81,7 @@ class DownloaderThread(Thread):
 
         self.append_log_line(repr(command))
 
-        self.process = subprocess.Popen(command, stdout = subprocess.PIPE, bufsize=1)
+        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
 
         def enqueue_output(out, queue):
             for line in iter(out.readline, b''):
@@ -107,8 +106,6 @@ class DownloaderThread(Thread):
 
         while not self.event.is_set():
 
-            self.start_time = datetime.datetime.now()
-
             # wait for a bit
             sleep(2)
 
@@ -121,33 +118,28 @@ class DownloaderThread(Thread):
                 return
             else:
 
-                current_time = datetime.datetime.now()
-                diff = current_time - self.start_time
-                if diff.total_seconds() > 3:
+                # reload from database
+                session.refresh(self.current_job)
 
-                    # reload from database
-                    session.refresh(self.current_job)
+                while not self.reader_queue.empty():
+                    try:
+                        line = self.reader_queue.get_nowait()  # or q.get(timeout=.1)
+                    except Empty:
+                        print('no output yet')
+                    else:  # got line
+                        self.append_log_line(line)
 
-                    while not self.reader_queue.empty():
-                        try:
-                            line = self.reader_queue.get_nowait()  # or q.get(timeout=.1)
-                        except Empty:
-                            print('no output yet')
-                        else:  # got line
-                            self.append_log_line(line)
+                self.update_job()
 
-                    if self.current_job.paused:
-                        logger.debug("Job has been paused... aborting.")
-                        self.abort()
-                        return
-
-                    self.update_job()
-
-                    self.start_time = datetime.datetime.now()
+                if self.current_job.paused:
+                    logger.debug("Job has been paused... terminating.")
+                    self.terminate()
+                    return
 
         self.terminate()
 
     def terminate(self):
+
         self.process.terminate()
         self.current_job = None
         self.start_time = None
@@ -155,13 +147,14 @@ class DownloaderThread(Thread):
 
         logging.info("Job has terminated.")
 
-
     def complete(self, exit_code):
-        set_status(session, self.current_job, JOB_STATUS_POSTPROCESSING)
 
+        if exit_code == 0:
+            set_status(session, self.current_job, JOB_STATUS_POSTPROCESSING)
+        else:
+            set_status(session, self.current_job, JOB_STATUS_FAILED
+                       )
         self.current_job = None
         self.process = None
 
         logging.info("Job has completed.")
-
-

@@ -30,7 +30,8 @@ def parse_du_output(res, base_dir, du_type):
         # first directory is the category
         category, name = os.path.split(base)
 
-        yield du_item(category, name, base, size, du_type)
+        if name:
+            yield du_item(category, name, base, size, du_type)
 
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
@@ -96,10 +97,11 @@ def refresh_remote():
             print("job exists - updating")
             job.size = item.size
 
-    # # clean up old jobs
-    # for job in session.query(Job).all():
-    #     if not any(p.name == job.name for p in pending_jobs):
-    #         print(job.name + "no longer existings - removing job")
-    #         session.delete(job)
+    # clean up old jobs
+    for job in session.query(Job).all():
+        if not any(p.name == job.name for p in pending_jobs):
+            print(job.name + "no longer existings - moving to history")
+            job.status = JOB_STATUS_COMPLETED
+
 
     session.commit()

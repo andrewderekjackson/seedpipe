@@ -15,6 +15,7 @@ JOB_STATUS_DOWNLOADING = 'downloading'
 JOB_STATUS_POSTPROCESSING = 'postprocessing'
 JOB_STATUS_CLEANUP='cleanup'
 JOB_STATUS_COMPLETED='completed'
+JOB_STATUS_FAILED='failed'
 
 
 FS_TYPE_DIR = 'dir'
@@ -55,7 +56,7 @@ class Job(Base):
     datetime_completed = Column(DateTime)
 
     def __repr__(self):
-        return "<Job(id='%s', name='%s', size='%s')>" % (self.id, self.name, self.size)
+        return "<Job(id='%s', name='%s', remote_path='%s', size='%s')>" % (self.id, self.name, self.remote_path, self.size)
 
     @hybrid_property
     def status(self):

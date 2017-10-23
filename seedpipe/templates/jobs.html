@@ -110,6 +110,8 @@
 
                 if (that.status == "paused") {
                     return { name: "Resume", url: "/api/resume/" + that.id };
+                } else if (that.status == "failed") {
+                    return { name: "Retry", url: "/api/resume/" + that.id };
                 } else {
                     return { name: "Pause", url: "/api/pause/" + that.id };
                 }
