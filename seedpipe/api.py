@@ -3,7 +3,8 @@ from flask import Blueprint, jsonify, session, render_template, abort
 
 from seedpipe.db import session
 from seedpipe.models import *
-from seedpipe.worker import get_job, set_status
+from seedpipe.worker import get_job
+from seedpipe.worker.remote import refresh_remote
 
 api = Blueprint("api", __name__)
 
@@ -20,7 +21,6 @@ def index():
 
 @api.route('/status')
 def api_status():
-    # scheduler.add_job(check_local, id='refresh_local')
 
     jobs = session.query(Job).all()
 
@@ -32,6 +32,14 @@ def api_status():
                   'category': job.category.name if job.category is not None else ''})
 
     return jsonify(create_response(200, "OK", jobs=j))
+
+@api.route('/refresh')
+def api_refresh():
+
+    refresh_remote()
+
+    return jsonify(create_response(200, "OK"))
+
 
 @api.route('/job/<id>')
 def api_job(id):
@@ -60,6 +68,20 @@ def api_resume_job(job_id):
         session.commit()
 
     return jsonify(create_response(200, "Job resumed"))
+
+@api.route('/retry/<job_id>')
+def api_retry_job(job_id):
+
+    job = get_job(session, job_id)
+    if job is not None:
+
+        if job.status == JOB_STATUS_FAILED:
+            job.status = JOB_STATUS_QUEUED
+
+        job.paused = False
+        session.commit()
+
+    return jsonify(create_response(200, "Retrying job"))
 
 
 @api.route('/pause/<job_id>')

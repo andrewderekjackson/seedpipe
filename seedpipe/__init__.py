@@ -8,7 +8,7 @@ from .db import create_db_defaults
 from .sonar import update_sonar
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='client/', static_url_path='/app')
 
     # Load default config and override config from an environment variable
     app.config.update(dict(

@@ -14,4 +14,4 @@ def remove_session(ex=None):
 @seedpipe.route('/')
 def index():
     jobs = session.query(Job).all()
-    return render_template('jobs.html', jobs=jobs)
+    return render_template('index.html', jobs=jobs)
