@@ -1,8 +1,10 @@
 import os, pprint, sh
 
 from seedpipe.config import *
-from seedpipe.db import session
+from seedpipe.db import session, engine
 from seedpipe.models import *
+
+from sqlalchemy.sql.expression import func
 
 from collections import namedtuple
 
@@ -75,7 +77,7 @@ def refresh_remote():
                 pending_jobs.append(file)
 
     # second loop to process jobs
-    for item in pending_jobs:
+    for item in sorted(pending_jobs, key=lambda s : s.name):
 
         if item.category is None or item.category == '':
             continue
@@ -83,15 +85,14 @@ def refresh_remote():
         job = session.query(Job).filter(Job.name == item.name).first()
         if job is None:
 
-            pending_job = Job(name=item.name, remote_path=item.base_path, size=item.size, fs_type=item.type)
+            pending_job = Job(name=item.name, remote_path=item.base_path, size=item.size, fs_type=item.type, category=item.category)
 
+            order = session.query(func.max(Job.job_order)).scalar()
+
+            pending_job.job_order = order+1 if order is not None else 1
             print("New job - adding")
-
-            cat = session.query(Category).filter(Category.path == item.category).first()
-            if not cat is None:
-                pending_job.category = cat
-
             session.add(pending_job)
+            session.flush()
 
         else:
             print("job exists - updating")

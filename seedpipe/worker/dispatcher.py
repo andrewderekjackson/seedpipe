@@ -1,4 +1,4 @@
-import threading,logging
+import threading, logging
 from sqlalchemy import or_
 
 logger = logging.getLogger(__name__)
@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 from seedpipe.worker import DownloaderThread, PostProcessorThread
 from seedpipe.db import *
 from seedpipe.models import *
+
 
 def thread_exists(thread_type):
     for thread in threading.enumerate():
@@ -16,16 +17,11 @@ def thread_exists(thread_type):
 def get_next_download_job():
     logging.debug("checking for next download job")
 
-    # firstly continue any jobs which are in progress
-    next_job = session.query(Job).filter(Job.status == JOB_STATUS_DOWNLOADING, Job.paused == False).first()
-    if next_job is not None:
-        logging.debug("Next job is job {}".format(next_job.id))
-        return next_job
-
-    # secondly find the next queued job (ordered by priority of the category)
-    next_job = session.query(Job).outerjoin(Job.category) \
-        .filter(Job.status == JOB_STATUS_QUEUED, Job.paused == False) \
-        .order_by(Category.priority).first()
+    # find the next job
+    next_job = session.query(Job) \
+        .filter(Job.status == JOB_STATUS_QUEUED, Job.paused == False, Job.worker == False) \
+        .order_by(Job.job_order) \
+        .first()
 
     if next_job is not None:
         logging.debug("Next job is job {}".format(next_job.id))
@@ -33,25 +29,29 @@ def get_next_download_job():
 
     # no jobs available
     return None
+
 
 def get_next_postprocessing_job():
-
     logging.debug("checking for next postprocessing jobs")
 
-    next_job = session.query(Job).filter(or_(Job.status == JOB_STATUS_POSTPROCESSING, Job.status == JOB_STATUS_CLEANUP), Job.paused == False).first()
+    next_job = session.query(Job) \
+        .filter(or_(Job.status == JOB_STATUS_POSTPROCESSING, Job.status == JOB_STATUS_CLEANUP),
+                Job.paused == False,
+                Job.worker == False) \
+        .first()
+
     if next_job is not None:
         logging.debug("Next job is job {}".format(next_job.id))
         return next_job
 
     # no jobs available
     return None
-
 
 
 download_stop = threading.Event()
 
-def schedule_new_job():
 
+def schedule_new_job():
     logger.debug("Scheduling...")
     if not thread_exists(DownloaderThread):
         logger.debug("No download thread exists. Attempt to schedule a new one.")

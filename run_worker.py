@@ -4,14 +4,14 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-from seedpipe.worker import DownloaderThread, PostProcessorThread, schedule_new_job, refresh_remote
+from seedpipe.worker import DownloaderThread, PostProcessorThread, schedule_new_job, refresh_remote, reset_jobs
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 import threading
 
 event = threading.Event()
 
-
+reset_jobs()
 
 try:
     scheduler = BlockingScheduler()

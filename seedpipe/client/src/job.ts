@@ -42,7 +42,7 @@ export class Job {
     }
 
     canPause() : boolean {
-        return this.status() === "downloading";
+        return this.status() === "downloading" || this.status() === "queued";
     }
 
     pause() {

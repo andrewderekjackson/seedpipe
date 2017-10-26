@@ -1,18 +1,15 @@
 import logging, os, threading, collections
-from seedpipe.db import Job
+from seedpipe.db import Job, engine
+from seedpipe.models import *
 
 logger = logging.getLogger(__name__)
 
-WORKER_TERMINATE = 0
-WORKER_CANCEL_JOB = 1
-
-message = collections.namedtuple("Message", "action job_id")
 
 def make_local_job_folder(dir):
-
     if not os.path.exists(dir):
         print("Creating directory:" + dir)
         os.makedirs(dir)
+
 
 def get_size(start_path='.'):
     total_size = 0
@@ -24,16 +21,28 @@ def get_size(start_path='.'):
 
 
 def set_status(session, job, job_status):
-
     if job is int:
         job = get_job(job)
 
-    print("Updating job record to '"+job_status+"'")
+    print("Updating job record to '" + job_status + "'")
     job.status = job_status
     session.commit()
 
+
 def get_job(session, job_id):
     return session.query(Job).get(job_id)
+
+
+def reset_jobs():
+    print("Resetting jobs")
+    from sqlalchemy import update
+
+    # no worker processes are running - reset any worker locks
+    engine.execute(update(Job). \
+                   values(worker=False))
+
+    engine.execute(update(Job).where(Job.status == JOB_STATUS_DOWNLOADING). \
+                   values(status=JOB_STATUS_QUEUED))
 
 
 class WorkerThread(threading.Thread):

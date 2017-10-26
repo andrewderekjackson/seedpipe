@@ -101,6 +101,7 @@ class DownloaderThread(Thread):
             return
 
         set_status(session, self.current_job, JOB_STATUS_DOWNLOADING)
+        self.set_worker(True)
 
         self.start_download(self.current_job)
 
@@ -141,11 +142,20 @@ class DownloaderThread(Thread):
     def terminate(self):
 
         self.process.terminate()
+
+        self.set_worker(False)
+
         self.current_job = None
         self.start_time = None
         self.process = None
 
+
+
         logging.info("Job has terminated.")
+
+    def set_worker(self, worker):
+        self.current_job.worker = worker
+        session.commit()
 
     def complete(self, exit_code):
 
@@ -183,6 +193,7 @@ class DownloaderThread(Thread):
                 # fatal codes
                 set_status(session, self.current_job, JOB_STATUS_FAILED)
 
+        self.set_worker(False)
         self.current_job = None
         self.process = None
 

@@ -17,43 +17,61 @@ class PostProcessorThread(Thread):
         Thread.__init__(self)
         self.job_id = job_id
         self.event = event
+        self.current_job = None
 
         logger.debug("Worker thread initialized")
 
     def __del__(self):
         logger.debug("Worker thread deleted")
 
-    def run(self):
-
-        job = get_job(session, self.job_id)
-        if job is None:
-            logging.warning("Job {} was not found.".format(job.status))
-
-        dir = os.path.expanduser(os.path.join(LOCAL_BASE_DIR, job.local_path,''))
-
-        # UNRAR
-
-        logger.debug("Unraring all files")
-        sh.unrarall('--clean=all', dir)
-
-        # MOVE TO MOVIES FOLDER
-        try:
-            if job.category and job.category.move_files:
-                logger.info("Moving files to {}". format(job.category.move_files_path))
-                shutil.move(dir, job.category.move_files_path)
-        except Exception as e:
-            logger.warning("Moving files failed.", e)
-
-        # SONAR
-        update_sonar(dir)
-
-        # CLEAN UP
-        self.clean_up(job)
-
-        # done
-        set_status(session, job, JOB_STATUS_COMPLETED)
+    def set_worker(self, worker):
+        self.current_job.worker = worker
         session.commit()
 
+    def run(self):
+
+        self.current_job = get_job(session, self.job_id)
+        if self.current_job is None:
+            logging.warning("Job {} was not found.".format(self.current_job.status))
+            return
+
+        try:
+
+            self.set_worker(True)
+
+            dir = os.path.expanduser(os.path.join(LOCAL_BASE_DIR, self.current_job.local_path,''))
+
+            # UNRAR
+
+            logger.debug("Unraring all files")
+            try:
+                sh.unrarall('--clean=all', dir)
+            except:
+                pass
+
+            # MOVE TO MOVIES FOLDER
+            try:
+                move_to = get_config(self.current_job.category, 'move-to')
+                if move_to is not None:
+                    logger.info("Moving files to {}". format(move_to))
+                    shutil.move(dir, move_to)
+            except Exception as e:
+                logger.warning("Moving files failed.", e)
+
+            # SONAR
+            if get_config(self.current_job.category, 'notify', '') == 'sonar':
+                update_sonar(dir)
+
+            # CLEAN UP
+            self.clean_up(self.current_job)
+
+            # done
+            set_status(session, self.current_job, JOB_STATUS_COMPLETED)
+        except:
+            set_status(session, self.current_job, JOB_STATUS_FAILED)
+        finally:
+            self.set_worker(False)
+            session.commit()
 
     def clean_up(self, job):
         """Cleans up (deletes) the directory on the remote server."""

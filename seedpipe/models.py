@@ -21,37 +21,23 @@ JOB_STATUS_FAILED='failed'
 FS_TYPE_DIR = 'dir'
 FS_TYPE_FILE = 'file'
 
-class Category(Base):
-    __tablename__ = 'category'
-
-    id = Column(Integer, Sequence('category_id_seq'), primary_key=True)
-    name = Column(String)
-    path = Column(String)
-    jobs = relationship("Job", back_populates='category')
-    priority = Column(Integer)
-    move_files = Column(Boolean, default=False)
-    move_files_path = Column(String)
-
-    def __repr__(self):
-        return "<Category(id='%s', name='%s')>" % (self.id, self.name)
-
-
 class Job(Base):
     __tablename__ = 'job'
 
     id = Column(Integer, Sequence('job_id_seq'), primary_key=True)
     name = Column(String)
+    job_order = Column(Integer, default=None, nullable=True)
     remote_path = Column(String)
     size = Column(Float)
     _status = Column("status", String, default=JOB_STATUS_QUEUED)
     paused = Column(Boolean, default=False)
     transferred = Column(Float)
     fs_type = Column(Integer, default=FS_TYPE_DIR)
-    category_id = Column(Integer, ForeignKey('category.id'))
-    category = relationship("Category", back_populates="jobs")
+    category = Column(String)
     log = Column(String)
+    worker = Column(Boolean, default=False)
 
-    datetime_added = Column(DateTime, default=datetime.datetime.utcnow)
+    datetime_added = Column(DateTime, default=datetime.datetime.now)
     datetime_downloaded = Column(DateTime)
     datetime_completed = Column(DateTime)
 
@@ -85,7 +71,6 @@ class Job(Base):
         if self.fs_type == FS_TYPE_FILE:
             fn, ext = os.path.splitext(self.name)
 
-            return os.path.join(self.category.path if self.category is not None else "other", fn)
+            return os.path.join(self.category if self.category is not None else "other", fn)
         else:
             return self.remote_path
-
