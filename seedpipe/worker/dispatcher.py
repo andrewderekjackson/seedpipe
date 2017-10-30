@@ -3,7 +3,7 @@ from sqlalchemy import or_
 
 logger = logging.getLogger(__name__)
 
-from seedpipe.worker import DownloaderThread, PostProcessorThread, reset_jobs
+from seedpipe.worker import DownloaderThread, PostProcessorThread
 from seedpipe.worker.remote import refresh_remote
 from seedpipe.db import *
 from seedpipe.models import *
@@ -16,6 +16,7 @@ class Dispatcher():
         self.scheduler = scheduler
 
     def start(self):
+        self.reset_jobs()
         self._start_if_configured()
         self.scheduler.start()
 
@@ -24,13 +25,24 @@ class Dispatcher():
             if type(thread) is thread_type:
                 return True
 
+    def reset_jobs(self):
+        print("Resetting jobs")
+        from sqlalchemy import update
+
+        # no worker processes are running - reset any worker locks
+        engine.execute(update(Job). \
+                       values(worker=False))
+
+        engine.execute(update(Job).where(Job.status == JOB_STATUS_DOWNLOADING). \
+                       values(status=JOB_STATUS_QUEUED))
+
 
     def get_next_download_job(self):
         logging.debug("checking for next download job")
 
         # find the next job
         next_job = session.query(Job) \
-            .filter(Job.status == JOB_STATUS_QUEUED, Job.paused == False, Job.worker == False) \
+            .filter(or_(Job.status == JOB_STATUS_QUEUED, Job.status == JOB_STATUS_DOWNLOADING), Job.paused == False, Job.worker == False) \
             .order_by(Job.job_order) \
             .first()
 

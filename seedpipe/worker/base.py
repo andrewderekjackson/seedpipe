@@ -33,18 +33,6 @@ def get_job(session, job_id):
     return session.query(Job).get(job_id)
 
 
-def reset_jobs():
-    print("Resetting jobs")
-    from sqlalchemy import update
-
-    # no worker processes are running - reset any worker locks
-    engine.execute(update(Job). \
-                   values(worker=False))
-
-    engine.execute(update(Job).where(Job.status == JOB_STATUS_DOWNLOADING). \
-                   values(status=JOB_STATUS_QUEUED))
-
-
 class WorkerThread(threading.Thread):
     """Worker thread responsible for handling the downloading of a job."""
 
