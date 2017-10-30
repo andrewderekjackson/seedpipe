@@ -3,3 +3,5 @@ TODO:
 # Add option to not automatically download. e.g.: freeleech category which lists jobs but does manual queuing.
 # Throttling
 # Pushbullet notification
+# upload support
+# db migrations [done]
