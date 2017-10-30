@@ -1,6 +1,6 @@
 import os, pprint, sh
 
-from seedpipe.config import *
+import seedpipe.config as config
 from seedpipe.db import session, engine
 from seedpipe.models import *
 
@@ -39,6 +39,10 @@ def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
 def refresh_remote():
+
+    SSH_HOST = config.get('ssh', 'host')
+    SSH_USERNAME = config.get('ssh', 'username')
+    REMOTE_BASE_DIR = config.get('ssh', 'remote_base_dir')
 
     print("Connecting...")
 

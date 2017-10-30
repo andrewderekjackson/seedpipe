@@ -8,6 +8,7 @@ from seedpipe.db import *
 from seedpipe.worker import *
 from seedpipe.config import *
 from seedpipe.sonar import update_sonar
+import seedpipe.pushbullet as pb
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,8 @@ class PostProcessorThread(Thread):
 
     def run(self):
 
+        LOCAL_BASE_DIR = config.get('ssh', 'local_base_dir')
+
         self.current_job = get_job(session, self.job_id)
         if self.current_job is None:
             logging.warning("Job {} was not found.".format(self.current_job.status))
@@ -51,7 +54,7 @@ class PostProcessorThread(Thread):
 
             # MOVE TO MOVIES FOLDER
             try:
-                move_to = get_config(self.current_job.category, 'move-to')
+                move_to = config.get_category(self.current_job.category, 'move-to')
                 if move_to is not None:
                     logger.info("Moving files to {}". format(move_to))
                     shutil.move(dir, move_to)
@@ -59,8 +62,12 @@ class PostProcessorThread(Thread):
                 logger.warning("Moving files failed.", e)
 
             # SONAR
-            if get_config(self.current_job.category, 'notify', '') == 'sonar':
+            if config.get_category_flag(self.current_job.category, 'notify', 'sonar'):
                 update_sonar(dir)
+
+            # Pushbullet
+            if config.get_category_flag(self.current_job.category, 'notify', 'pushbullet'):
+                pb.send(self.current_job)
 
             # CLEAN UP
             self.clean_up(self.current_job)
@@ -76,6 +83,10 @@ class PostProcessorThread(Thread):
     def clean_up(self, job):
         """Cleans up (deletes) the directory on the remote server."""
         try:
+
+            SSH_HOST = config.get('ssh', 'host')
+            SSH_USERNAME = config.get('ssh', 'username')
+            REMOTE_BASE_DIR = config.get('ssh', 'remote_base_dir')
 
             logger.info("Starting cleanup")
             set_status(session, job, JOB_STATUS_CLEANUP)

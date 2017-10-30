@@ -46,6 +46,12 @@ class DownloaderThread(Thread):
         session.commit()
 
     def start_download(self, job):
+
+        SSH_HOST = config.get('ssh', 'host')
+        SSH_USERNAME = config.get('ssh', 'username')
+        REMOTE_BASE_DIR = config.get('ssh', 'remote_base_dir')
+        LOCAL_BASE_DIR = config.get('ssh', 'local_base_dir')
+
         """Invokes r-sync and monitors the download progress"""
 
         self.local_dir = os.path.join(os.path.expanduser(os.path.join(LOCAL_BASE_DIR, job.local_path)), "")

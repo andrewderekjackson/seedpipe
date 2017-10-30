@@ -1,23 +1,28 @@
 import configparser, os, logging
 
+from seedpipe.xdg import XDG_CONFIG_DIRS, XDG_DATA_DIRS, XDG_CONFIG_HOME
+
+# set to true when a valid configuration is loaded
+CONFIGURED = False
+
+DB_URI = 'sqlite:///seedpipe.db'
+
 logger = logging.getLogger(__name__)
-
-DB_URI='sqlite:///seedpipe.db'
-
 config = configparser.ConfigParser()
 
-def write_default(file):
+
+def load_default():
 
     config['ssh'] = {
-        'host' : 'porphyrion.feralhosting.com',
-        'username' : 'sfox',
+        'host': 'porphyrion.feralhosting.com',
+        'username': 'sfox',
         'remote_base_dir': '/media/sdu1/sfox/finished/',
         'local_base_dir': '~/tmp/finished'
     }
 
     config['movies'] = {
-        'name' : 'Movies',
-        'priority' : 5,
+        'name': 'Movies',
+        'priority': 5,
         'move-to': '/media/Data/Temp/Movies'
     }
 
@@ -49,66 +54,77 @@ def write_default(file):
         'api-key': 'xyz'
     }
 
+def save_config(file):
+    full_file = os.path.expanduser(file)
+    logger.info("Writing configuration file to {}".format(full_file))
 
-    with open(os.path.expanduser(file), 'w') as configfile:
+    with open(full_file, 'w') as configfile:
         config.write(configfile)
 
-def load_config(*args):
-    for path in args:
-        full_path = os.path.expanduser(path)
+def load_config(paths):
+    global CONFIGURED
+
+    for path in paths:
+        full_path = os.path.join(os.path.expanduser(path), 'seedpipe')
+
         if os.path.isfile(full_path):
             logger.info("Reading configuration from {}".format(full_path))
             config.read(full_path)
+
+            CONFIGURED = True
             return True
+        else:
+            logger.warning("No configuration file was found at {}".format(full_path))
 
     return False
 
-def get_config(category, prop, default=None):
 
+def get(group, prop, default=None):
+    """Returns the configuration value. Returns the default value if not found."""
     try:
-        key = config[category]
+        key = config[group]
     except KeyError:
-        key = config['other']
+        return default
 
     try:
         return key[prop]
     except:
         return default
 
+def get_category(category, prop, default=None):
 
+    """Returns the configuration value for a category.
+    If no key is found, will try look for the key in the other category first
+    then return default if not found. """
 
-# def configure_logging():
-#
-#     logging.basicConfig(level=logging.DEBUG)
-#
-#     root_logger = logging.getLogger()
-#     ch = logging.StreamHandler()
-#     ch.setLevel(logging.DEBUG)
-#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-#     #formatter = logging.Formatter("%(thread)s - %(name)s - %(levelname)s - %(message)s")
-#
-#     ch.setFormatter(formatter)
-#     root_logger.addHandler(ch)
-#
-#     shlogger = logging.getLogger('sh')
-#     if shlogger is not None:
-#         shlogger.setLevel(logging.INFO)
-#
-# configure_logging()
+    value = get(category, prop, None)
+    if value:
+        return value
+
+    value = get('other', prop, None)
+    if value:
+        return value
+
+    return default
+
+def get_category_flag(category, prop, flag_value):
+    value = get_category(category, prop, '')
+    values = value.split(',')
+    return flag_value in values
+
 
 # load the config file
-default = '~/.seedpipe'
-if not load_config("/etc/seedpipe", default):
-    logger.info("Creating default configuration file at {}".format(default))
-    write_default(default)
+if not load_config([XDG_CONFIG_HOME]):
+    logger.warning("No configuration was loaded. The dispatcher will be disabled until a valid configuration is found")
+
+    load_default()
+
+    example_path = os.path.join(XDG_CONFIG_HOME, "seedpipe.example")
+    save_config(example_path)
+
+    logging.info("An example configuration file has been saved to {}. ".format(example_path))
 
 
-REMOTE_BASE_DIR = config['ssh']['remote_base_dir']
-LOCAL_BASE_DIR=config['ssh']['local_base_dir']
 
-SSH_HOST=config['ssh']['host']
-SSH_USERNAME=config['ssh']['username']
 
-SONAR_HOST=config['sonar']['host']
-SONAR_PORT=config['sonar']['port']
-SONAR_API_KEY=config['sonar']['api-key']
+

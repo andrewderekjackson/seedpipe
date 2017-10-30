@@ -1,7 +1,7 @@
 from flask import Flask
 from seedpipe.api import api
 from seedpipe.seedpipe import seedpipe
-from seedpipe.dispatcher import JobDispatcher
+from seedpipe.worker import Dispatcher
 from seedpipe.worker import refresh_remote
 
 from .db import create_db_defaults
@@ -21,15 +21,3 @@ def create_app():
     app.register_blueprint(api, url_prefix="/api")
 
     return app
-
-def create_dispatcher():
-    dispatcher = JobDispatcher()
-    dispatcher.start()
-
-    # refresh the remote now and then every 5 minutes after that.
-    #scheduler.add_job(refresh_remote, trigger='interval', id='refresh_remote', minutes=5)
-    #scheduler.add_job(refresh_remote, id='refresh_remote_immediate')
-
-
-
-
