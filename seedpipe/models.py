@@ -31,6 +31,8 @@ class Job(Base):
     size = Column(Float)
     _status = Column("status", String, default=JOB_STATUS_QUEUED)
     paused = Column(Boolean, default=False)
+    last_status = Column(String)
+
     transferred = Column(Float)
     fs_type = Column(Integer, default=FS_TYPE_DIR)
     category = Column(String)
@@ -55,6 +57,12 @@ class Job(Base):
             self.datetime_completed = datetime.datetime.now()
         if value == JOB_STATUS_POSTPROCESSING:
             self.datetime_downloaded = datetime.datetime.now()
+
+        # if failed, save the last status so we can resume from here
+        if value == JOB_STATUS_FAILED:
+            self.last_status = self.status
+        else:
+            self.last_status = None
 
         self._status = value
 

@@ -76,7 +76,7 @@ def api_retry_job(job_id):
     if job is not None:
 
         if job.status == JOB_STATUS_FAILED:
-            job.status = JOB_STATUS_QUEUED
+            job.status = job.last_status or JOB_STATUS_QUEUED
 
         job.paused = False
         session.commit()
