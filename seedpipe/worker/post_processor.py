@@ -6,7 +6,7 @@ from sqlalchemy import or_
 
 from seedpipe.db import *
 from seedpipe.worker import *
-from seedpipe.config import *
+import seedpipe.config as config
 from seedpipe.sonar import update_sonar
 import seedpipe.pushbullet as pb
 
