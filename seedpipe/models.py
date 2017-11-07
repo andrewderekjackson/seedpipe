@@ -21,10 +21,26 @@ JOB_STATUS_FAILED='failed'
 FS_TYPE_DIR = 'dir'
 FS_TYPE_FILE = 'file'
 
+class Status(Base):
+    __tablename__ = 'status'
+
+    id = Column(Integer, Sequence('status_id_sequence'), primary_key=True)
+    refreshing = Column(Boolean, default=False, nullable=False)
+
+
+class Log(Base):
+    __tablename__ = 'log'
+
+    id = Column(Integer, Sequence('log_id_sequence'), primary_key=True)
+    text = Column(String)
+    job_id = Column(Integer, ForeignKey('job.id'))
+    job = relationship("Job", back_populates="logs")
+
 class Job(Base):
     __tablename__ = 'job'
 
     id = Column(Integer, Sequence('job_id_seq'), primary_key=True)
+    logs = relationship("Log", back_populates="job")
     name = Column(String)
     job_order = Column(Integer, default=None, nullable=True)
     remote_path = Column(String)
@@ -82,3 +98,10 @@ class Job(Base):
             return os.path.join(self.category if self.category is not None else "other", fn)
         else:
             return self.remote_path
+
+    def log_info(self, text):
+        log = Log()
+        log.text = text
+
+        self.logs.append(log)
+

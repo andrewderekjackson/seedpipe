@@ -1,12 +1,4 @@
-import sys, json
-from collections import namedtuple
-
-import os
-
-
-def get_relative_path(base, path):
-    return path[len(base) + 1:]
-
+import sys,os
 
 def get_dir_size(start_path='.'):
     total_size = 0
@@ -15,42 +7,45 @@ def get_dir_size(start_path='.'):
             fp = os.path.join(dirpath, f)
             total_size += os.path.getsize(fp)
     return total_size
+#
+#
+def add(type, name, full_path, base_path, category):
 
+    # calculate size or file or directory
+    if type=='dir':
+        size = get_dir_size(full_path)
+    else:
+        size = os.stat(full_path).st_size
 
-def add(type, name, relative_path, category, size):
-    print("{}\t{}\t{}\t{}\t{}".format(type, name, relative_path, category or 'none', size))
+    # # calculate relative paths
+    relative_path = full_path[len(base_dir):]
 
+    print("{}\t{}\t{}\t{}\t{}".format(type, name, relative_path, category, size))
 
-def find_dirs(start_path='.', depth=1):
+def find(current_dir, current_category=None):
 
-    for d in os.listdir(start_path):
-        print("d: " + d)
-        #base_path = d[len(start_path) + 1:]
-        #print("base_path: " + base_path)
-        #full_path = os.path.join(dirpath, d)
-        #print("fullpath: " + full_path)
-        #relative_path = full_path[len(start_path)+1:]
-        #print("relative_path: " + relative_path)
+    to_scan = []
 
-        # if not base_path:
-        #     find_files(d, full_path)
-        # else:
-        #     size = get_dir_size(full_path)
-        #     add('dir', d, relative_path, base_path, size)
+    items = os.listdir(current_dir)
+    for item in items:
+        full_path = os.path.join(current_dir, item)
 
+        if os.path.isfile(full_path):
+            add('file', item, full_path, base_dir, current_category)
 
-def find_files(base_path, dir):
-    # print("Files in dir: {} with base {}".format(dir,base_path))
+        else:
+            if item in categories:
+                to_scan.append(item)
+            else:
+                add('dir', item, full_path, base_dir, current_category)
 
-    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
-    for file in files:
-        file_path = os.path.join(dir, file)
-	#print("file_path: " + file_path)
-	name = os.path.basename(file_path)
+    for item in to_scan:
+        find(os.path.join(base_dir, item), item)
 
-        relative_path = os.path.join(base_path, file)
-        size = os.path.getsize(file_path)
-        add('file', name, relative_path, base_path, size)
+base_dir = sys.argv[1]
+categories = str(sys.argv[2]).split(",")
 
+# print("Working directory: "+base_dir)
+# print("Categories:" + repr(categories))
 
-find_dirs(sys.argv[1])
+find(base_dir)

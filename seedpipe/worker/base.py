@@ -28,6 +28,16 @@ def set_status(session, job, job_status):
     job.status = job_status
     session.commit()
 
+# def set_status(session, refreshing):
+#     status_record = session.query(Status).get(1)
+#     if not status_record:
+#         status_record = Status()
+#         status_record.id = 1
+#         session.add(status_record)
+#
+#     status_record.refreshing = refreshing
+#     session.commit()
+
 
 def get_job(session, job_id):
     return session.query(Job).get(job_id)

@@ -31,9 +31,10 @@ class DownloaderThread(Thread):
 
     def append_log_line(self, text):
         if text is not None and self.current_job is not None:
-            if self.current_job.log is None:
-                self.current_job.log = ''
-            self.current_job.log += os.linesep + str(text)
+            # if self.current_job.log is None:
+            #     self.current_job.log = ''
+            # self.current_job.log += os.linesep + str(text)
+            self.current_job.log_info(text)
 
     def update_job(self):
 

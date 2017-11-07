@@ -1,112 +1,72 @@
-import os, pprint, sh
+import os, pprint, json, pkg_resources,subprocess
 
 import seedpipe.config as config
-from seedpipe.db import session, engine
+from seedpipe.db import session
 from seedpipe.models import *
+from seedpipe.worker.base import *
 
 from sqlalchemy.sql.expression import func
 
-from collections import namedtuple
-
-du_item = namedtuple("du_item", "category name base_path size type")
-
-def get_size(start_path='.'):
-    total_size = 0
-    for dirpath, dirnames, filenames in os.walk(start_path):
-        for f in filenames:
-            fp = os.path.join(dirpath, f)
-            total_size += os.path.getsize(fp)
-    return total_size
-
-
-def parse_du_output(res, base_dir, du_type):
-    for line in res:
-        # split the results of "du" to get the path and size
-        parts = line.split('\t', 1)
-        size = float(parts[0])
-        path = parts[1].rstrip()
-
-        # get the path relative to the base directory
-        base = path[len(base_dir):]
-
-        # first directory is the category
-        category, name = os.path.split(base)
-
-        if name:
-            yield du_item(category, name, base, size, du_type)
-
-def shellquote(s):
-    return "'" + s.replace("'", "'\\''") + "'"
-
 def refresh_remote():
 
-    SSH_HOST = config.get('ssh', 'host')
-    SSH_USERNAME = config.get('ssh', 'username')
-    REMOTE_BASE_DIR = config.get('ssh', 'remote_base_dir')
+    try:
+        # flag that we're updating
+        # set_status(session, True)
 
-    print("Connecting...")
+        SSH_HOST = config.get('ssh', 'host')
+        SSH_USERNAME = config.get('ssh', 'username')
+        REMOTE_BASE_DIR = config.get('ssh', 'remote_base_dir')
 
-    ssh = sh.ssh.bake(SSH_USERNAME + '@' + SSH_HOST)
-    res = ssh('du', '-B1', '--max-depth=2', REMOTE_BASE_DIR)
+        template = pkg_resources.resource_filename(__name__, '/file_size.py')
 
-    base_dir = os.path.join(os.path.expanduser(REMOTE_BASE_DIR), '')
+        categories = config.get_categories()
 
-    print("base:" + REMOTE_BASE_DIR)
-    print("base dir:" + base_dir)
+        command = "cat {} | ssh {} python -u - {} {}".format(
+            template,
+            SSH_USERNAME + '@' + SSH_HOST,
+            os.path.expanduser(REMOTE_BASE_DIR),
+            ",".join(map(str, categories)))
 
-    pending_jobs = list(parse_du_output(res, base_dir, du_type=FS_TYPE_DIR))
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        res = p.communicate()[0]
+        print(res)
 
-    # first loop to process files
-    for item in pending_jobs:
+        processed_jobs = []
 
-        if item.category is None or item.category == '':
-            # root category
+        for line in res.decode('utf-8').split('\n'):
+            try:
+                (type, name, relative_path, category, size) = line.split('\t')
 
-            cat_dir = os.path.join(base_dir, item.name)
-            print('file dir: ' + cat_dir)
+                if category=='None':
+                    category = 'other'
 
-            # find /media/sdu1/sfox/finished/tv -maxdepth 1 -type f -print0  | du -m --files0-from=-
+                job = session.query(Job).filter(Job.name == name).first()
+                if job is None:
+                    print("adding new job")
+                    job = Job(name=name, remote_path=relative_path, size=float(size), fs_type=type, category=category)
 
-            cat_res = ssh('find', shellquote(cat_dir), '-maxdepth', '1', '-type','f', '-print0', '|', 'du', '-B1', '--files0-from=-')
+                    order = session.query(func.max(Job.job_order)).scalar()
+                    job.job_order = order + 1 if order is not None else 1
+                    job.log_info("Job added.")
 
-            print(cat_res)
+                    session.add(job)
 
-            pending_files = list(parse_du_output(cat_res, base_dir, FS_TYPE_FILE))
+                else:
+                    print("job exists - updating")
+                    job.size = float(size)
+                    job.category = category
 
-            print(pending_files)
+                processed_jobs.append(job)
 
-            for file in pending_files:
-                print("Adding pending file")
-                print(file)
-                pending_jobs.append(file)
+            except ValueError:
+                pass
 
-    # second loop to process jobs
-    for item in sorted(pending_jobs, key=lambda s : s.name):
+        # clean up old jobs
+        for job in session.query(Job).all():
+            if not any(p.name == job.name for p in processed_jobs):
+                print(job.name + " no longer existings - moving to history")
+                job.status = JOB_STATUS_COMPLETED
 
-        if item.category is None or item.category == '':
-            continue
-
-        job = session.query(Job).filter(Job.name == item.name).first()
-        if job is None:
-
-            pending_job = Job(name=item.name, remote_path=item.base_path, size=item.size, fs_type=item.type, category=item.category)
-
-            order = session.query(func.max(Job.job_order)).scalar()
-
-            pending_job.job_order = order+1 if order is not None else 1
-            print("New job - adding")
-            session.add(pending_job)
-            session.flush()
-
-        else:
-            print("job exists - updating")
-            job.size = item.size
-
-    # clean up old jobs
-    for job in session.query(Job).all():
-        if not any(p.name == job.name for p in pending_jobs):
-            print(job.name + "no longer existings - moving to history")
-            job.status = JOB_STATUS_COMPLETED
-
-
-    session.commit()
+    finally:
+        session.commit()
+        # set_status(session, False)

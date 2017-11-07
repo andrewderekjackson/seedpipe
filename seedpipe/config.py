@@ -112,6 +112,18 @@ def get_category_flag(category, prop, flag_value):
     values = value.split(',')
     return flag_value in values
 
+def is_category(category):
+    try:
+        key = config[category]
+        if key:
+            return True
+    except:
+        pass
+
+    return False
+
+def get_categories():
+    return list(filter(lambda v:v not in ['ssh', 'sonar', 'pushbullet'], config.sections()))
 
 # load the config file
 if not load_config([XDG_CONFIG_HOME]):

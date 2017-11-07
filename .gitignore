@@ -1,5 +1,7 @@
 seedpipe.db
 
+
+
 ;;extensions to ignore
 *.log
 *.pot
@@ -7,3 +9,4 @@ seedpipe.db
 
 ;;directories to ignore
 .idea/
+seedpipe/client/node_modules/
