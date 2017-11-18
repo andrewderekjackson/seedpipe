@@ -2,6 +2,9 @@ TODO:
 
 # Add option to not automatically download. e.g.: freeleech category which lists jobs but does manual queuing.
 # Throttling
-# Pushbullet notification
+# Pushbullet notification [done]
 # upload support
 # db migrations [done]
+# better handling of items not in a category
+   * guessit based clasifier [done]
+   * python based remote grobbler [done]

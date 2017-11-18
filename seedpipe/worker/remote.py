@@ -5,7 +5,28 @@ from seedpipe.db import session
 from seedpipe.models import *
 from seedpipe.worker.base import *
 
+from guessit import guessit
+
 from sqlalchemy.sql.expression import func
+
+def set_category(job):
+
+    if not job.category or job.category.lower() == 'none':
+        job.category = 'other'
+
+def guess_category(name):
+
+    guess = guessit(name)
+    if guess:
+
+        if guess['type'] == 'episode':
+
+            if 'other' in guess and 'xxx' in guess['other'].lower():
+                return 'private'
+
+            return 'tv'
+
+        return guess['type']
 
 def refresh_remote():
 
@@ -37,13 +58,13 @@ def refresh_remote():
             try:
                 (type, name, relative_path, category, size) = line.split('\t')
 
-                if category=='None':
-                    category = 'other'
-
                 job = session.query(Job).filter(Job.name == name).first()
                 if job is None:
                     print("adding new job")
                     job = Job(name=name, remote_path=relative_path, size=float(size), fs_type=type, category=category)
+
+                    if not job.category or job.category.lower() == "none":
+                        job.category = guess_category(job.name)
 
                     order = session.query(func.max(Job.job_order)).scalar()
                     job.job_order = order + 1 if order is not None else 1
