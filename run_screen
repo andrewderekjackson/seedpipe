@@ -1,6 +1,6 @@
-#!/usr/bin/sh
+#!/bin/bash
 
-killall run
+./stop
 
 screen ./run
 
