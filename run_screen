@@ -1,0 +1,6 @@
+#!/usr/bin/sh
+
+killall run
+
+screen ./run
+
