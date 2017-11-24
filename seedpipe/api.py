@@ -50,7 +50,9 @@ def api_job(id):
 
     json = {'id': job.id, 'name': job.name, 'status': 'paused' if job.paused else job.status, 'fs_type': job.fs_type, 'size': job.size,
               'transferred': job.transferred, 'percent': job.percent,
-              'category': job.category if job.category is not None else 'other', 'log':job.log}
+              'category': job.category if job.category is not None else 'other'}
+
+    json['logs'] = list(map(lambda v:v.text, job.logs))
 
     return jsonify(create_response(200, "OK", job = json))
 
