@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Seedpipe - Downloads</title>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -13,97 +14,141 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Bitter:400,700|Roboto:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    
+    <!-- TODO: fix this path when webpack is working again -->
+    <link rel="stylesheet" href="/app/src/app.css">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 </head>
-<body>
+    <body>
 
-<div class="container" role="main">
+    <nav class="navbar navbar-default">
+        <div class="container">
+        
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"><i class="fa fa-tasks" aria-hidden="true"></i> SeedPipe</a>
+            </div>
+ 
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <button type="button"  data-bind="click: refresh" class="btn btn-default navbar-btn">Refresh</button>
+                </ul>
+            </div>
+            
+        </div>
+      </nav>
 
-    <h1>SeedPipe</h1>
 
-    <input type="button" data-bind="click: refresh" value="Refresh">
-    <!--<input type="button" data-bind="click: pauseAll" value="Pause All">-->
-    <!--<input type="button" data-bind="click: resumeAll" value="Resume All">-->
+    <div class="container">
 
-    <h2>Queue</h2>
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>Queue</h2>    
+            </div>
+        </div>
 
     <div class="row">
 
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Job Name</th>
-                <th>Category</th>
-                <th>Progress</th>
-                <th>Transferred</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody data-bind="foreach: jobs()">
-            <tr>
-                <td><a data-bind="attr: { href: '/api/job/' + id() }"><span data-bind="text: name()"></span></a></td>
+            <div class="col-xs-12">
 
-                <td data-bind="text: category()"></td>
-                <td>
+    <table class="table table-bordered">
+    <thead>
 
-                    <div class="progress">
+                <tr>
+                    <th>Job Name</th>
+                    <th class="col-md-2">Category</th>
+                    <th class="col-md-2">Progress</th>
+                    <th class="col-md-2">Transferred</th>
+                    <th class="col-md-2">Status</th>
+                    <th class="col-md-2">Actions</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: jobs()">
+                <tr>
+                    <td><a data-bind="attr: { href: '/api/job/' + id() }"><span data-bind="text: name()"></span></a></td>
 
-                    <div class="progress-bar progress-bar-info"
-                         data-bind="style: { width: percent()+'%'}"
-                         role="progressbar">
-                        <span data-bind="text: Math.round(percent())+'%'"></span>
-                    </div>
+                    <td data-bind="text: category()"></td>
+                    <td>
 
-                    </div>
+                        <div class="progress">
 
-                </td>
-                <td data-bind="text: transferredText()"></td>
-                <td data-bind="text: status()"></td>
-                <td>
-                    <div class="dropdown">
-                      <button class="btn btn-xs dropdown-toggle" type="button" data-toggle="dropdown">Actions
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li data-bind="visible: canPause()"><a data-bind="click: pause, clickBubble=False" href="#">Pause</a></li>
-                          <li data-bind="visible: canResume()"><a data-bind="click: resume, clickBubble=False" href="#">Resume</a></li>
-                          <li data-bind="visible: canRetry()"><a data-bind="click: retry, clickBubble=False" href="#">Retry</a></li>
+                        <div class="progress-bar progress-bar-info"
+                            data-bind="style: { width: percent()+'%'}"
+                            role="progressbar">
+                            <span data-bind="text: Math.round(percent())+'%'"></span>
+                        </div>
 
-                      </ul>
-                    </div>
-                </td>
+                        </div>
 
-            </tr>
-            </tbody>
-        </table>
+                    </td>
+                    <td data-bind="text: transferredText()"></td>
+                    <td data-bind="text: status()"></td>
+                    <td>
+                        <div class="dropdown">
+                        <button class="btn btn-xs dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li data-bind="visible: canPause()"><a data-bind="click: pause, clickBubble=False" href="#">Pause</a></li>
+                            <li data-bind="visible: canResume()"><a data-bind="click: resume, clickBubble=False" href="#">Resume</a></li>
+                            <li data-bind="visible: canRetry()"><a data-bind="click: retry, clickBubble=False" href="#">Retry</a></li>
+
+                        </ul>
+                        </div>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+        <div class="row">
+                <div class="col-xs-12">
+                    <h2>History</h2>    
+                </div>
+            </div>
+    
+    <div class="row">
+            <div class="col-xs-12">
+                  <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Job Name</th>
+                            <th>Category</th>
+            
+                        </tr>
+                        </thead>
+                        <tbody data-bind="foreach: history()">
+                        <tr>
+                            <td><a data-bind="attr: { href: '/api/job/' + id() }"><span data-bind="text: name()"></span></a></td>
+                            <td data-bind="text: category()"></td>
+            
+            
+                        </tr>
+                        </tbody>
+                    </table>
+
+        </div>
+        
+    </div>
 
 
-        <h2>History</h2>
-
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Job Name</th>
-                <th>Category</th>
-
-            </tr>
-            </thead>
-            <tbody data-bind="foreach: history()">
-            <tr>
-                <td><a data-bind="attr: { href: '/api/job/' + id() }"><span data-bind="text: name()"></span></a></td>
-                <td data-bind="text: category()"></td>
-
-
-            </tr>
-            </tbody>
-        </table>
+        
 
 
     </div>
+iv class="row">
 
+        <div class="col-lg-12">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
