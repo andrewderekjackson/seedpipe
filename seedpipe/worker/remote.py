@@ -38,7 +38,7 @@ def refresh_remote():
         SSH_USERNAME = config.get('ssh', 'username')
         REMOTE_BASE_DIR = config.get('ssh', 'remote_base_dir')
 
-        template = pkg_resources.resource_filename(__name__, '/file_size.py')
+        template = pkg_resources.resource_filename(__name__, '/remote_worker.py')
 
         categories = config.get_categories()
 

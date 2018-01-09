@@ -32,6 +32,5 @@ class RefreshRemoteCase(unittest.TestCase):
             'private')
 
 
-
 if __name__ == '__main__':
     unittest.main()

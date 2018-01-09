@@ -7,4 +7,7 @@ TODO:
 # db migrations [done]
 # better handling of items not in a category
    * guessit based clasifier [done]
+     * bug: should put the download in the target category - puts it at the root of the target.
    * python based remote grobbler [done]
+     * bug: should order the files alphabetically.
+
