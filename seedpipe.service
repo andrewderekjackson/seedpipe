@@ -1,0 +1,12 @@
+[Unit]
+Description=Seedpipe seedbox download service
+After=syslog.target
+
+[Service]
+Type=simple
+User=andrew
+WorkingDirectory=/home/andrew/dev/seedpipe
+ExecStart=/home/andrew/dev/seedpipe/run
+
+[Install]
+WantedBy=multi-user.target
