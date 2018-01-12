@@ -60,7 +60,6 @@ def refresh_remote():
 
                 job = session.query(Job).filter(Job.name == name).first()
                 if job is None:
-                    print("adding new job")
                     job = Job(name=name, remote_path=relative_path, size=float(size), fs_type=type, category=category)
 
                     if not job.category or job.category.lower() == "none":
@@ -73,7 +72,7 @@ def refresh_remote():
                     session.add(job)
 
                 else:
-                    print("job exists - updating")
+                    # print("job exists - updating")
                     job.size = float(size)
                     job.category = category
 
@@ -83,7 +82,7 @@ def refresh_remote():
                 pass
 
         # clean up old jobs
-        for job in session.query(Job).all():
+        for job in session.query(Job).filter(Job.status != JOB_STATUS_COMPLETED).all():
             if not any(p.name == job.name for p in processed_jobs):
                 print(job.name + " no longer existings - moving to history")
                 job.status = JOB_STATUS_COMPLETED

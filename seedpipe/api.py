@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, session, render_template, abort
+from flask import Blueprint, jsonify, session, render_template, abort, request
 
 from seedpipe.db import session
 from seedpipe.models import *
@@ -96,13 +96,24 @@ def api_pause_job(job_id):
 
     return jsonify(create_response(200, "Job paused"))
 
+@api.route('/delete')
+def api_delete_job():
+
+    id = request.args.get('id')
+    if id is None:
+        return jsonify(create_response(500, "An id or list of ids expected"))
+
+
+
 @api.route('/pauseall')
 def api_pauseall():
+    # todo!
     return jsonify(create_response(200, "Job scheduler paused"))
 
 
 @api.route('/resumeall')
 def api_resumeall():
+    # todo
     return jsonify(create_response(200, "Job scheduler resumed"))
 
 def create_response(status_code, status, **kwargs):

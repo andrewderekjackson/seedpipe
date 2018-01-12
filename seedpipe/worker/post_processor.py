@@ -1,14 +1,13 @@
 import logging, sh
 import shutil
 from time import sleep
-
 from sqlalchemy import or_
-
 from seedpipe.db import *
+
 from seedpipe.worker import *
 import seedpipe.config as config
 from seedpipe.sonar import update_sonar
-import seedpipe.pushbullet as pb
+import seedpipe.notify.pushbullet as pb
 
 logger = logging.getLogger(__name__)
 

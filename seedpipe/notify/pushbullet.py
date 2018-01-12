@@ -1,7 +1,7 @@
 import logging, requests
 
 import seedpipe.config as config
-from pushbullet import Pushbullet
+import pushbullet
 
 logger = logging.getLogger(__name__)
 
@@ -15,5 +15,5 @@ def send(job):
 
     logger.info("Notifing via pushbullet: " + job.name)
 
-    pb = Pushbullet(TOKEN)
+    pb = pushbullet.Pushbullet(TOKEN)
     pb.push_note("Seedpipe: Download Complete", job.name)
